@@ -1,0 +1,3078 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0048)http://www.radosoft.com/evan/fly/flyedit_10.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+
+
+
+<title>Humans Eye View</title>
+
+<script type="text/javascript" async="" ></script>
+</script>
+<script language="javascript">
+
+var screen=[];
+screen['x']=600; 
+screen['y']=0;
+screen['z']=0;
+screen['a']=100;
+screen['b']=100;
+
+var savedY= 0;
+var savedX= 0;
+var ctx;
+var step = 5;/*step to change perameters*/
+  
+var tgt=[];
+tgt['x']=60; 
+tgt['y']=115; 
+tgt['z']=225; 
+
+var o = 0;  /* Object number */
+
+
+var canvasXMax = 888;
+var canvasYMax = 500;
+
+var objects = new Array();
+var inChangeMode = 0;
+o = 0; /* Start object count */
+
+var colorStep = 20;
+
+var moveStep = 10;
+
+/* X axis line */
+objects[o] = new Array();
+objects[o]['type'] = "axis";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 0;
+objects[o]['colorG'] = 0;
+objects[o]['colorB'] = 255;
+
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+objects[o]['coord'][0][0] =  0; /* x */
+objects[o]['coord'][1][0] =  0; /* y */
+objects[o]['coord'][2][0] =  1; /* z */
+
+objects[o]['coord'][0][1] =  2000;  /* x */
+objects[o]['coord'][1][1] =  0;    /* y */
+objects[o]['coord'][2][1] =  1;    /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[o]['coord'][2][2] =  -1;   /* z */
+
+o++ ; /* Start next obejct */
+
+/* Y axis line */
+objects[o] = new Array();
+objects[o]['type'] = "axis";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 0;
+objects[o]['colorG'] = 255;
+objects[o]['colorB'] = 0;
+
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+objects[o]['coord'][0][0] =  0; /* x */
+objects[o]['coord'][1][0] =  0; /* y */
+objects[o]['coord'][2][0] =  1; /* z */
+
+objects[o]['coord'][0][1] =  0;    /* x */
+objects[o]['coord'][1][1] =  2000;  /* y */
+objects[o]['coord'][2][1] =  1;    /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[o]['coord'][2][2] =  -1;   /* z */
+
+o++;
+
+/* Z axis line */
+objects[o] = new Array();
+objects[o]['type'] = "axis";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 255;
+objects[o]['colorG'] = 0;
+objects[o]['colorB'] = 0;
+
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+objects[o]['coord'][0][0] =  0; /* x */
+objects[o]['coord'][1][0] =  0; /* y */
+objects[o]['coord'][2][0] =  0; /* z */
+
+objects[o]['coord'][0][1] =  0;    /* x */
+objects[o]['coord'][1][1] =  0;    /* y */
+objects[o]['coord'][2][1] =  1000;  /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[o]['coord'][2][2] =  -1;   /* z */
+
+var gridStep = 200
+o++;
+var Gy;
+for(Gy = gridStep; Gy < 2000; Gy += gridStep)
+{
+
+
+/* X axis line */
+objects[o] = new Array();
+objects[o]['type'] = "axis";
+objects[o]['thick'] = 1; /* thickness in pixels */
+objects[o]['colorR'] = 0;
+objects[o]['colorG'] = 0;
+objects[o]['colorB'] = 0;
+
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+
+objects[o]['coord'][0][0] =  0; /* x */
+objects[o]['coord'][1][0] =  Gy; /* y */
+objects[o]['coord'][2][0] =  1; /* z */
+
+objects[o]['coord'][0][1] =  2000;  /* x */
+objects[o]['coord'][1][1] =  Gy;    /* y */
+objects[o]['coord'][2][1] =  1;    /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[o]['coord'][2][2] =  -1;   /* z */
+
+o++ ; /* Start next obejct */
+}
+
+var Gx;
+for(Gx= gridStep; Gx < 2000; Gx += gridStep)
+{
+/* Y axis line */
+objects[o] = new Array();
+objects[o]['type'] = "axis";
+objects[o]['thick'] = 1; /* thickness in pixels */
+objects[o]['colorR'] = 0;
+objects[o]['colorG'] = 0;
+objects[o]['colorB'] = 0;
+
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+objects[o]['coord'][0][0] =  Gx; /* x */
+objects[o]['coord'][1][0] =  0; /* y */
+objects[o]['coord'][2][0] =  1; /* z */
+
+objects[o]['coord'][0][1] =  Gx;    /* x */
+objects[o]['coord'][1][1] =  2000;  /* y */
+objects[o]['coord'][2][1] =  1;    /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[o]['coord'][2][2] =  -1;   /* z */
+
+o++;
+}
+console.log("User object starts at " + o);
+/* Here starts user objects */
+if (0 ) 
+{    /* Parallelogram */
+
+objects[o] = new Array();
+objects[o]['type'] = "figure";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 200;
+objects[o]['colorG'] = 200;
+objects[o]['colorB'] = 200;
+
+/* Farther side */
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+objects[o]['coord'][0][0] =  50;/*x*/
+objects[o]['coord'][1][0] =  300;/*y*/
+objects[o]['coord'][2][0] =  340;/*z*/
+
+objects[o]['coord'][0][1] =  50;/*x*/
+objects[o]['coord'][1][1] =  300;/*y*/
+objects[o]['coord'][2][1] =  160;/*z*/
+
+objects[o]['coord'][0][2] =  50;/*x*/
+objects[o]['coord'][1][2] =  160;/*y*/
+objects[o]['coord'][2][2] =  160;/*z*/
+
+objects[o]['coord'][0][3] =  50;/*x*/
+objects[o]['coord'][1][3] =  160;/*y*/
+objects[o]['coord'][2][3] =  340;/*z*/
+
+objects[o]['coord'][0][4] =  -1;/*x*/
+objects[o]['coord'][1][4] =  -1;/*y*/
+objects[o]['coord'][2][4] =  -1;/*z*/
+
+o++;
+
+objects[o] = new Array();
+objects[o]['type'] = "figure";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 0;
+objects[o]['colorG'] = 0;
+objects[o]['colorB'] = 0;
+
+/* Close side */
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+objects[o]['coord'][0][0] =  400;/*x*/
+objects[o]['coord'][1][0] =  300;/*y*/
+objects[o]['coord'][2][0] =  340;/*z*/
+
+objects[o]['coord'][0][1] =  400;/*x*/
+objects[o]['coord'][1][1] =  300;/*y*/
+objects[o]['coord'][2][1] =  160;/*z*/
+
+objects[o]['coord'][0][2] =  400;/*x*/
+objects[o]['coord'][1][2] =  160;/*y*/
+objects[o]['coord'][2][2] =  160;/*z*/
+
+objects[o]['coord'][0][3] =  400;/*x*/
+objects[o]['coord'][1][3] =  160;/*y*/
+objects[o]['coord'][2][3] =  340;/*z*/
+
+objects[o]['coord'][0][4] =  -1;/*x*/
+objects[o]['coord'][1][4] =  -1;/*y*/
+objects[o]['coord'][2][4] =  -1;/*z*/
+
+o++;
+
+objects[o] = new Array();
+objects[o]['type'] = "figure";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 150;
+objects[o]['colorG'] = 150;
+objects[o]['colorB'] = 150;
+
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+/* top right line */
+objects[o]['coord'][0][0] =  50; /* x */
+objects[o]['coord'][1][0] =  300; /* y */
+objects[o]['coord'][2][0] =  340; /* z */
+
+objects[o]['coord'][0][1] =  400;  /* x */
+objects[o]['coord'][1][1] =  300;    /* y */
+objects[o]['coord'][2][1] =  340;    /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[5]['coord'][2][2] =  -1;   /* z */
+ 
+o++;
+
+objects[o] = new Array();
+objects[o]['type'] = "figure";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 150;
+objects[o]['colorG'] = 150;
+objects[o]['colorB'] = 150;
+/* TOP left line */
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+objects[o]['coord'][0][0] =  50; /* x */
+objects[o]['coord'][1][0] =  160; /* y */
+objects[o]['coord'][2][0] =  340; /* z */
+
+objects[o]['coord'][0][1] =  400;  /* x */
+objects[o]['coord'][1][1] =  160;    /* y */
+objects[o]['coord'][2][1] =  340;    /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[o]['coord'][2][2] =  -1;   /* z */
+
+o++;
+
+objects[o] = new Array();
+objects[o]['type'] = "figure";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 150;
+objects[o]['colorG'] = 150;
+objects[o]['colorB'] = 150;
+
+/* Bottom right line */
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+
+objects[o]['coord'][0][0] =  50; /* x */
+objects[o]['coord'][1][0] =  300; /* y */
+objects[o]['coord'][2][0] =  160; /* z */
+
+objects[o]['coord'][0][1] =  400;  /* x */
+objects[o]['coord'][1][1] =  300;    /* y */
+objects[o]['coord'][2][1] =  160;    /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[o]['coord'][2][2] =  -1;   /* z */
+
+o++;
+objects[o] = new Array();
+objects[o]['type'] = "figure";
+objects[o]['thick'] = 3; /* thickness in pixels */
+objects[o]['colorR'] = 151;
+objects[o]['colorG'] = 151;
+objects[o]['colorB'] = 151;
+
+objects[o]['coord'] = Array();
+objects[o]['coord'][0] = Array() ;/*xArray*/
+objects[o]['coord'][1] = Array() ;/*yArray*/
+objects[o]['coord'][2] = Array() ;/*zArray*/
+/* Bottom left line */
+objects[o]['coord'][0][0] =  50; /* x */
+objects[o]['coord'][1][0] =  160; /* y */
+objects[o]['coord'][2][0] =  160; /* z */
+
+objects[o]['coord'][0][1] =  400;  /* x */
+objects[o]['coord'][1][1] =  160;    /* y */
+objects[o]['coord'][2][1] =  160;    /* z */
+
+objects[o]['coord'][0][2] =  -1;   /* x */
+objects[o]['coord'][1][2] =  -1;   /* y */
+objects[o]['coord'][2][2] =  -1;   /* z */
+o++;
+}
+var userObjectsStarts = o;
+
+console.log ("User first object index   " +o );
+var focus = 4000;
+
+var canvasBackgroundColor  = "#ffffff";
+var canvasBackgroundColorR = 255;
+var canvasBackgroundColorG = 255;
+var canvasBackgroundColorB = 255;
+var canvasBackgroundFilled = 0; 
+var rebuildOnMouse = 0;
+var canvas;
+
+
+/* Polyhedron objects definition */
+
+
+var dodecahedron = Array();
+dodecahedron['F'] = 12;    /* Faces*/
+dodecahedron['V'] = 20;    /* Vertices */
+dodecahedron['E'] = 30;    /* Edges */ 
+dodecahedron['thick'] = 2; /* Thickness of edges */
+dodecahedron['r'] = 155;   /* Color red */ 
+dodecahedron['g'] = 155;   /* Color green */
+dodecahedron['b'] = 155;   /* Color blue */
+/* Vertices coordinates */
+dodecahedron[0]= Array();  /* Array of X xoordinates */
+dodecahedron[1]= Array();  /* Arrray of Y coordinates */
+dodecahedron[2]= Array();  /* Arrray of Z coordinates */
+var phi = (1+Math.sqrt(5))/2;
+
+/* coordinates pre-computations */
+var b = 1 / phi ; 
+var c = 2 - phi ;
+var invis = 8192;
+
+
+
+var ddc = [
+ c,  0,  1,    b,  b,  b,   0,  1,  c,  -b,  b,  b,  -c,  0,  1,   c,  0,   1, -invis,-invis,-invis,/* Top right */
+-c,  0,  1,   -b, -b,  b,   0, -1,  c,   b, -b,  b,   c,  0,  1,  -c,  0,   1, -invis,-invis,-invis, /* top far back */
+ c,  0, -1,    b, -b, -b,   0, -1, -c,  -b, -b, -b,  -c,  0, -1,   c,  0,  -1, -invis,-invis,-invis, /* Bottom */ 
+-c,  0, -1,   -b,  b, -b,   0,  1, -c,   b,  b, -b,   c,  0, -1,  -c,  0,  -1, -invis,-invis,-invis, /* Bottom far right*/
+ 0,  1, -c,    0,  1,  c,   b,  b,  b,   1,  c,  0,   b,  b, -b,   0,  1,  -c, -invis,-invis,-invis,
+ 0,  1,  c,    0,  1, -c,  -b,  b, -b,  -1,  c,  0,  -b,  b,  b,   0,  1,   c, -invis,-invis,-invis,
+ 0, -1, -c,    0, -1,  c,  -b, -b,  b,  -1, -c,  0,  -b, -b, -b,   0, -1,  -c, -invis,-invis,-invis,
+ 0, -1,  c,    0, -1, -c,   b, -b, -b,   1, -c,  0,   b, -b,  b,   0, -1,   c, -invis,-invis,-invis,
+ 1,  c,  0,    b,  b,  b,   c,  0,  1,   b, -b,  b,   1, -c,  0,   1,  c,   0, -invis,-invis,-invis,
+ 1, -c,  0,    b, -b, -b,   c,  0, -1,   b,  b, -b,   1,  c,  0,   1, -c,   0, -invis,-invis,-invis,
+-1,  c,  0,   -b,  b, -b,  -c,  0, -1,  -b, -b, -b,  -1, -c,  0,  -1,  c,   0, -invis,-invis,-invis,
+-1, -c,  0,   -b, -b,  b,  -c,  0,  1,  -b,  b,  b,  -1,  c,  0,  -1, -c,   0, -invis,-invis,-invis];
+
+/* Cube definition */
+var cube = Array();
+cube['F'] = 6;    /* Faces*/
+cube['V'] = 8;    /* Vertices */
+cube['E'] = 12;    /* Edges */ 
+cube['thick'] = 2; /* Thickness of edges */
+cube['r'] = 0;   /* Color red */ 
+cube['g'] = 155;   /* Color green */
+cube['b'] = 155;   /* Color blue */
+/* Vertices coordinates */
+cube[0]= Array();  /* Array of X xoordinates */
+cube[1]= Array();  /* Arrray of Y coordinates */
+cube[2]= Array();  /* Arrray of Z coordinates */
+
+
+var ccc = [
+1,0,1,  0,0,1,  0,1,1,  1,1,1,  1,0,1,
+1,0,0,  0,0,0,  0,1,0,  1,1,0,  1,0,0, 
+1,1,0,  1,1,1,  0,1,1,  0,1,0,  0,0,0,
+0,0,1,
+-invis,-invis,-invis];
+
+
+/* end of dodecadron definition */
+var tetra = Array();
+tetra['F'] = 4;    /* Faces*/
+tetra['V'] = 4;    /* Vertices */
+tetra['E'] = 6;    /* Edges */ 
+tetra['thick'] = 2; /* Thickness of edges */
+tetra['r'] = 255;   /* Color red */ 
+tetra['g'] = 0;   /* Color green */
+tetra['b'] = 0;   /* Color blue */
+/* Vertices coordinates */
+tetra[0]= Array();  /* Array of X xoordinates */
+tetra[1]= Array();  /* Arrray of Y coordinates */
+tetra[2]= Array();  /* Arrray of Z coordinates */
+
+
+var ttt = [
+  1,1,1,  1,-1,-1, -1,1,-1,  -1,-1,1,   
+   -invis,-invis,-invis,
+  1,-1,-1, -1,-1,1, 1,1,1, -1,1,-1,
+     -invis,-invis,-invis];
+	 
+var Octahedron = Array();
+Octahedron['F'] = 8;    /* Faces*/
+Octahedron['V'] = 6;    /* Vertices */
+Octahedron['E'] = 12;    /* Edges */ 
+Octahedron['thick'] = 2; /* Thickness of edges */
+Octahedron['r'] = 255;   /* Color red */ 
+Octahedron['g'] = 0;   /* Color green */
+Octahedron['b'] = 0;   /* Color blue */
+/* Vertices coordinates */
+Octahedron[0]= Array();  /* Array of X xoordinates */
+Octahedron[1]= Array();  /* Arrray of Y coordinates */
+Octahedron[2]= Array();  /* Arrray of Z coordinates */
+var phi = (1+Math.sqrt(5))/2;
+var b = 1 / phi ; 
+var a = 2 - phi ;
+	 
+	 
+var ooo = [
+-a,  0,  a,   -a,  0, -a,    0,  b,  0,
+-a,  0, -a,    a,  0, -a,    0,  b,  0,
+ a,  0, -a,    a,  0,  a,    0,  b,  0,
+ a,  0,  a,   -a,  0,  a,    0,  b,  0,
+ a,  0, -a,   -a,  0, -a,    0, -b,  0,
+-a,  0, -a,   -a,  0,  a,    0, -b,  0,
+ a,  0,  a,    a,  0, -a,    0, -b,  0,
+-a,  0,  a,    a,  0,  a,    0, -b,  0,
+	-invis,-invis,-invis];
+	
+	
+var icosahedron = Array();
+icosahedron['F'] = 20;    /* Faces*/
+icosahedron['V'] = 12;    /* Vertices */
+icosahedron['E'] = 30;    /* Edges */ 
+icosahedron['thick'] = 2; /* Thickness of edges */
+icosahedron['r'] = 255;   /* Color red */ 
+icosahedron['g'] = 0;   /* Color green */
+icosahedron['b'] = 0;   /* Color blue */
+/* Vertices coordinates */
+icosahedron[0]= Array();  /* Array of X xoordinates */
+icosahedron[1]= Array();  /* Arrray of Y coordinates */
+icosahedron[2]= Array();  /* Arrray of Z coordinates */
+var phi = (1+Math.sqrt(5))/2;
+var b = 1 / phi ; 
+var a = 2 - phi ;	
+
+
+ /* 12 Coordinates of the vertices */ 
+var icoxyz =
+[
+           0,   0,   0,   /* Fake vertice */            
+           0,   1,  phi, 
+           0,  -1,  phi, 
+           0,   1, -phi, 
+           0,  -1, -phi, 
+           1,  phi,  0 , 
+          -1,  phi,  0 , 
+           1, -phi,  0 , 
+          -1, -phi,  0 , 
+           phi, 0,   1 , 
+          -phi, 0,   1 , 
+           phi, 0,  -1 , 
+          -phi, 0,  -1
+];
+ 
+ var icoFaces = [
+         1,  2,  9,
+         1,  9,  5,
+         1,  5,  6,
+         1,  6,  10,
+         1,  10, 2,
+         2,  7,  9,
+         9,  7,  11,
+         9,  11, 5,
+         5,  11, 3,
+         5,  3,  6,
+         6,  3,  12,
+         6,  12, 10,
+         10, 12, 8,
+         10, 8,  2,
+         2,  8,  7,
+         4,  7,  8,
+         4,  8,  12,
+         4,  12, 3,
+         4,  3,  11,
+         4,  11, 7];
+ var fake = 
+[
+		  -invis,-invis,-invis
+];
+		  
+
+function build_icosahedron_object_v (o, size, x,y,z,cR,cG,cB) 
+{
+  var v;
+  var i;
+  var f;
+  size = Math.floor(size)/3;    /* Make size proportional */
+  console.log("Object icosahedron " + o );
+  objects[o] = new Array();
+  objects[o]['type'] = "figure";
+   objects[o]['hedronType'] = "icosahedron";
+  objects[o]['thick'] =  icosahedron['thick']; 
+  objects[o]['colorR'] = cR;
+  objects[o]['colorG'] = cG;
+  objects[o]['colorB'] = cB;
+  objects[o]['coord'] = Array();
+  objects[o]['coord'][0] = Array() ;/*xArray*/
+  objects[o]['coord'][1] = Array() ;/*yArray*/
+  objects[o]['coord'][2] = Array() ;/*zArray*/
+  console.log ("icosahedron vertices = " +  icosahedron['V'] + " size " + size + 
+  " x " + x+ " y " + y  +" z " + z);
+  i=0;
+  v = 0;
+ 
+  /* Run through connection matrix */
+  for (f = 0; f < icoFaces.length ; f ++)
+  {
+     for (i = 0 ; i < 3; i++)
+     {
+        objects[o]['coord'][0][v] = icoxyz [(icoFaces[f + i]*3) +0] *size + x; 
+        objects[o]['coord'][1][v] = icoxyz [(icoFaces[f + i]*3) +1] *size + y;  
+        objects[o]['coord'][2][v] = icoxyz [(icoFaces[f + i]*3) +2] *size + z;  
+        v++;              
+     }
+     objects[o]['coord'][0][v] =  -invis;
+     objects[o]['coord'][1][v] =  -invis;
+     objects[o]['coord'][2][v] =  -invis;
+     v++;
+  }
+
+
+  console.log ("icosahedron vertices processed = " +  v);
+  objects[o]['coord'][0][v] =  -1;
+  objects[o]['coord'][1][v] =  -1;
+  objects[o]['coord'][2][v] =  -1;
+  
+}	  
+
+	function build_Octahedron_object(o, size, x,y,z,cR,cG,cB) 
+{
+  var v;
+  var i;
+  size = Math.floor(size * 1.40);    /* Make size proportional */
+  console.log("Object Octahedron " + o );
+  objects[o] = new Array();
+  objects[o]['type'] = "figure";
+   objects[o]['hedronType'] = "octahedron";
+  objects[o]['thick'] =  Octahedron['thick']; 
+  objects[o]['colorR'] = cR;
+  objects[o]['colorG'] = cG;
+  objects[o]['colorB'] = cB;
+  objects[o]['coord'] = Array();
+  objects[o]['coord'][0] = Array() ;/*xArray*/
+  objects[o]['coord'][1] = Array() ;/*yArray*/
+  objects[o]['coord'][2] = Array() ;/*zArray*/
+  console.log ("Octahedron vertices = " +  Octahedron['V'] + " size " + size + 
+  " x " + x+ " y " + y  +" z " + z);
+  i=0;
+  console.log ("Total coords " + ooo.length);
+  for (v = 0; v < Octahedron['E']* 10; v++, i += 3)
+  {
+    if ( ooo[i] == -invis  && ooo[i+1] == -invis && ooo[i+2] == -invis )
+    {       
+        objects[o]['coord'][0][v] =  ooo[i  ];
+        objects[o]['coord'][1][v] =  ooo[i+1];
+        objects[o]['coord'][2][v] =  ooo[i+2];
+    } 
+    else
+    {
+        objects[o]['coord'][0][v] =  ooo[i  ]*size  + x;
+        objects[o]['coord'][1][v] =  ooo[i+1]*size  + y;
+        objects[o]['coord'][2][v] =  ooo[i+2]*size  + z;
+    }
+    if ((i + 3) > ooo.length) 
+    {
+       break;                  
+    }
+
+  }
+
+  console.log ("Octahedron vertices processed = " +  v);
+  objects[o]['coord'][0][v] =  -1;
+  objects[o]['coord'][1][v] =  -1;
+  objects[o]['coord'][2][v] =  -1;
+  
+}
+/* Build object scaled to size and at x,y,z in the space */
+function build_cube_object(o, size, x,y,z,cR,cG,cB ) 
+{
+  var v;
+  var i;
+  console.log("Object cube " + o );
+  objects[o] = new Array();
+  objects[o]['type'] = "figure";
+   objects[o]['hedronType'] = "cube";
+  objects[o]['thick'] =  cube['thick']; 
+  objects[o]['colorR'] = cR;
+  objects[o]['colorG'] = cG;
+  objects[o]['colorB'] = cB;
+  objects[o]['coord'] = Array();
+  objects[o]['coord'][0] = Array() ;/*xArray*/
+  objects[o]['coord'][1] = Array() ;/*yArray*/
+  objects[o]['coord'][2] = Array() ;/*zArray*/
+  console.log ("cube vertices = " +  cube['V'] + " size " + size + 
+  " x " + x+ " y " + y  +" z " + z);
+  i=0;
+  console.log ("Total coords " + ccc.length);
+  for (v = 0; v < cube['E']* 10; v++, i += 3)
+  {
+    if ( ccc[i] == -invis  && ccc[i+1] == -invis && ccc[i+2] == -invis )
+    {       
+        objects[o]['coord'][0][v] =  ccc[i  ];
+        objects[o]['coord'][1][v] =  ccc[i+1];
+        objects[o]['coord'][2][v] =  ccc[i+2];
+    } 
+    else
+    {
+        objects[o]['coord'][0][v] =  ccc[i  ]*size  + x;
+        objects[o]['coord'][1][v] =  ccc[i+1]*size  + y;
+        objects[o]['coord'][2][v] =  ccc[i+2]*size  + z;
+    }
+    if ((i + 3) > ccc.length) 
+    {
+       break;                  
+    }
+
+  }
+
+  console.log ("cube vertices processed = " +  v);
+  objects[o]['coord'][0][v] =  -1;
+  objects[o]['coord'][1][v] =  -1;
+  objects[o]['coord'][2][v] =  -1;
+  
+}
+
+function build_tetra_object(o, size, x,y,z,cR,cG,cB) 
+{
+  var v;
+  var i;
+  size = size/2;   /* Make size proportional */
+  
+  objects[o] = new Array();
+  objects[o]['type'] = "figure";
+   objects[o]['hedronType'] = "tetrahedron";
+  objects[o]['thick'] =  tetra['thick']; 
+  objects[o]['colorR'] = cR;
+  objects[o]['colorG'] = cG;
+  objects[o]['colorB'] = cB;
+  objects[o]['coord'] = Array();
+  objects[o]['coord'][0] = Array() ;/*xArray*/
+  objects[o]['coord'][1] = Array() ;/*yArray*/
+  objects[o]['coord'][2] = Array() ;/*zArray*/
+  
+  i=0;
+ 
+  for (v = 0; v < tetra['E']* 10; v++, i += 3)
+  {
+    if ( ttt[i] == -invis  && ttt[i+1] == -invis && ttt[i+2] == -invis )
+    {       
+        objects[o]['coord'][0][v] =  ttt[i  ];
+        objects[o]['coord'][1][v] =  ttt[i+1];
+        objects[o]['coord'][2][v] =  ttt[i+2];
+    } 
+    else
+    {
+        objects[o]['coord'][0][v] =  ttt[i  ]*size  + x;
+        objects[o]['coord'][1][v] =  ttt[i+1]*size  + y;
+        objects[o]['coord'][2][v] =  ttt[i+2]*size  + z;
+    }
+    if ((i + 3) > ttt.length) 
+    {
+       break;                  
+    }
+
+  }
+
+  
+  objects[o]['coord'][0][v] =  -1;
+  objects[o]['coord'][1][v] =  -1;
+  objects[o]['coord'][2][v] =  -1;
+  
+}
+
+
+function build_dodecahedron_object(o, size, x,y,z,cR,cG,cB ) 
+{
+  var v;
+  var i;
+  size = size/2;  
+  console.log("Object dodecahedron " + o );
+  objects[o] = new Array();
+  objects[o]['type'] = "figure";
+  objects[o]['hedronType'] = "dodecahedron";
+  objects[o]['thick'] =  dodecahedron['thick']; 
+  objects[o]['colorR'] = cR;
+  objects[o]['colorG'] = cG;
+  objects[o]['colorB'] = cB;
+  objects[o]['coord'] = Array();
+  objects[o]['coord'][0] = Array() ;/*xArray*/
+  objects[o]['coord'][1] = Array() ;/*yArray*/
+  objects[o]['coord'][2] = Array() ;/*zArray*/
+  console.log ("dodecahedron vertices = " +  dodecahedron['V'] + " size " + size + 
+	" x " + x+ " y " + y  +" z " + z);
+  i=0;
+  console.log ("Total coords " + ddc.length);
+  for (v = 0; v < dodecahedron['E']* 10; v++, i += 3)
+  {
+    if ( ddc[i] == -invis  && ddc[i+1] == -invis && ddc[i+2] == -invis )
+    {       
+        objects[o]['coord'][0][v] =  ddc[i  ];
+        objects[o]['coord'][1][v] =  ddc[i+1];
+        objects[o]['coord'][2][v] =  ddc[i+2];
+    } 
+    else
+    {
+        objects[o]['coord'][0][v] =  ddc[i  ]*size  + x;
+        objects[o]['coord'][1][v] =  ddc[i+1]*size  + y;
+        objects[o]['coord'][2][v] =  ddc[i+2]*size  + z;
+    }
+    if ((i + 3) > ddc.length) 
+    {
+       break;                  
+    }
+
+  }
+
+  console.log ("dodecahedron vertices processed = " +  v);
+  objects[o]['coord'][0][v] =  -1;
+  objects[o]['coord'][1][v] =  -1;
+  objects[o]['coord'][2][v] =  -1;
+  
+}
+
+/* Use correct focus */
+
+o--;
+/*build_dodecahedron_object(o, 100, 200,200,200,0,0,0);
+o++;
+
+build_cube_object(o, 100, 0,0,0,0,0,0);
+o++;
+
+build_tetra_object(o, 100, 300,300,300,0,0,0);*/
+/* 
+ * This function transforms target (tgt) pixel coordinates 
+ * according to screen position and retirns 
+ * onScreenCoord array x,y,x 
+ */
+
+function transformPixel ( screen, tgt, onScreenCoord,distort)   
+{
+  
+  var x = 0;
+  var y = 0;
+  var z = 0;
+  var rada   = screen['a'] * (3.14159265/180); /* Angle in radians */
+  var radb   = screen['b'] * (3.14159265/180); /* Angle in radians */ 
+  /* Calculate tangens for a and (90-a) once */
+  var tana   = Math.tan(rada);
+  var tana2  = 0;
+  var f = 180 - screen['b']; /* Tilt angle from vertical */
+  var radf = f * (3.14159265/180);
+  var fm90 = 90 - f;        /* oppisite angle of f */
+  var radf90 = fm90 *(3.14159265/180);  
+  var A;
+  var B;
+  var Dx = 0;
+  var Dy = 0;
+  
+  tana2=tana*tana; /* Square of tangent alpha */
+
+  /* 1. Find intersection A on axis Y */
+  A = tgt['y'] + (tgt['x'] / tana);
+
+  /* 2. Calculate B on axis X */
+  B = screen['x'] - (screen['y'] / tana);
+
+  /* From system of equations calculate noew coords in main coordinate system */
+  y = (tana2*A - tana * B ) /(1 + tana2);
+  x =  tana * (A-y);
+
+  /* calculate dot position on the screen */  
+  xs = (y - screen['y']) / Math.sin(rada);
+
+ /* Need to calculate using tilt angle  and screen height position*/
+
+  zs = (x - tgt['x']) / Math.sin(rada);
+
+  ys = (canvasYMax + screen ['z']) - (tgt['z'] + zs / (1/Math.tan(radf) + 1/Math.tan(radf90)));
+  
+  
+
+  /* apply focus distortion*/
+  if ( distort == 1  && focus != 0)
+  {
+	  Dx = (((canvasXMax- xs)/2 )/focus)* zs;
+	  Dy = (((canvasYMax- ys)/2 )/focus)* zs;
+
+
+	  xs = xs + Dx;
+	  ys = ys + Dy;
+
+  }
+  
+  onScreenCoord['x'] = Math.floor(xs);
+  onScreenCoord['y'] = Math.floor(ys);
+  onScreenCoord['z'] = Math.floor(zs);
+  
+  if (0 )
+  { 
+    console.log("A.B  =" + Math.floor(A) + "." + Math.floor(B) +  
+              " tgt x.y.x = " + tgt['x'] + "."+ tgt['y'] + "." + tgt['z'] );
+     console.log("x.Dx = " + onScreenCoord['x'] + "." + Math.floor(Dx) + 
+              " y.Dy = " + onScreenCoord['y'] + "." + Math.floor(Dy) + 
+              " zs = " + onScreenCoord['z'] );
+  }
+
+  return;
+}
+
+
+function showPixel(ctx, coords, color)
+{
+
+  /* Get image */
+  var image = ctx.getImageData(0,0,canvasXMax,canvasYMax);
+  /* Get index to pixel in image array */
+  var index = (coords['y'] * canvasXMax + coords['x'] ) * 4;  /* Point to pixel */ 
+
+
+  if ( coords['z']  < 0 ) 
+  {
+      /* The pixel hit the screen. Change color */
+      color = 0 + 0xff * 256 ; /* Green */                    
+  }
+
+  image.data [index + 0]  = color & 0xff;  
+  image.data [index + 1]  = (color & 0xff00)/256;
+  image.data [index + 2]  = (color & 0xff0000) / (65536) ; /* 256 * 256 = 65536 */
+  image.data [index + 3]  = 255; 
+  index += 4;
+  image.data [index + 0]  = color & 0xff;  
+  image.data [index + 1]  = (color & 0xff00)/256;
+  image.data [index + 2]  = (color & 0xff0000) / (65536) ; /* 256 * 256 = 65536 */
+  image.data [index + 3]  = 255; 
+  if ( 1)
+  {
+    index = index -  canvasXMax*4;
+    image.data [index + 0]  = color & 0xff;  
+    image.data [index + 1]  = (color & 0xff00)/256;
+    image.data [index + 2]  = (color & 0xff0000) / (65536) ; /* 256 * 256 = 65536 */
+    image.data [index + 3]  = 255; 
+    index  -= 4;
+    image.data [index + 0]  = color & 0xff;  
+    image.data [index + 1]  = (color & 0xff00)/256;
+    image.data [index + 2]  = (color & 0xff0000) / (65536) ; /* 256 * 256 = 65536 */
+    image.data [index + 3]  = 255; 
+  }
+
+  ctx.putImageData (image, 0, 0); /* Activate */
+
+}
+/* 
+ * Function draw_line:
+ * Purpose: put dots in teh image corresponding to coordinates 
+ * of points in i1 and l2
+ */
+
+function draw_line(image, l1, l2, thick, cr, cg, cb, distort)                
+{
+  var k = 1;
+  var x =  l1['x'];   /* Line start x */
+  var y =  l1['y'];   /* Line start y */
+  var z =  l1['z'];   /* line start z*/
+  var xe = l2['x'];   /* Line end  x */
+  var ye = l2['y'];   /* Line end  y */
+  var ze = l2['z'];   /* Line end  z */
+  var yp = 0; /* Pixel x */ 
+  var xp = 0; /* Pixel y */
+  var xs; 
+  var xl;
+  var ys;
+  var ye;
+  var t;
+  var ty;
+  var xloop = 0;
+
+  /* Calculate line inclination */
+  if ( (xe-x) != 0 ) 
+  { 
+        k = (ye-y)/(xe-x);
+  }
+  else 
+  {
+        k = 10000;
+  }
+  if ( (k < 1) && (k >= -1)) 
+  {
+    xloop =1;
+  }
+  else
+  {
+    xloop = 0;
+  }
+  if (distort == 1 && ( z < 0 || ze < 0))
+  {
+      cr = 255;
+	  cg = 0;
+	  cb = 0;
+  }
+  
+  if ( xloop == 1 ) 
+  {
+   /* check inclination of the line */ 
+   if ( xe >= x ) 
+   {
+     /* right or vertical */
+       xs  = x; xl = xe;
+       if ( xe == x ) xl = xe + 1;
+   }
+   else
+   {
+      /* Left */
+       xs  = xe; xl = x;
+   }
+
+   /* From start X to the end X coordinate */
+
+   for(xp = xs; xp < xl; xp++)
+   {
+
+    if ( xp < 0 ) continue;
+     yp = Math.floor (ye - ((xe - xp))* (k));
+    if ( yp < 0 ) continue;
+	if ( yp > canvasYMax|| xp > canvasXMax) continue;
+    /* Calculate starting X point in the image array */
+    var j = (yp * canvasXMax  + xp) *4;
+
+    /* Build thick line on X axis */
+    for ( var t = 0; t < thick && (xp + thick) < canvasXMax ; t ++ ) 
+     {
+      /* every dot that is placed on x is also placed on y like a square*/
+       for (var ty = 0; ty < thick; ty ++)
+       { 
+            var l = j+(canvasXMax)*4 * ty;
+            image.data[ l + t*4 + 0 ] = cr;     /* red */
+            image.data[ l + t*4 + 1 ] = cg;     /* Green */
+            image.data[ l + t*4 + 2 ] = cb;     /* Blue */
+            image.data[ l + t*4 + 3 ] = 255;    /* transparency */
+       }
+     }
+   }
+  }
+  else
+  {
+
+   if ( ye >= y ) 
+   {
+       ys  = y; yl = ye;
+       if ( ye == y ) yl = ye + 1;
+   }
+   else
+   {
+       ys  = ye; yl = y;
+   }
+
+   /* From start Y to the end Y coordinate */
+
+   for(yp = ys; yp < yl; yp++)
+   {
+     if (yp < 0 ) continue;
+     xp = Math.floor ((yp - y + k * x)/k);                
+     if (xp < 0 ) continue;
+	 if ( yp > canvasYMax|| xp > canvasXMax) continue;
+    /* Calculate starting X point in the image array */
+    var j = (yp * canvasXMax  + xp) *4;
+
+    /* Build thick line on X axis */
+    for ( var t = 0; t < thick && (xp + thick) < canvasXMax ; t ++ ) 
+     {
+      /* every dot that is placed on x is also placed on y like a square*/
+       for (var ty = 0; ty < thick; ty ++)
+       { 
+            var l = j+(canvasXMax)*4 * ty;
+            image.data[ l + t*4 + 0 ] = cr;     /* red */
+            image.data[ l + t*4 + 1 ] = cg;     /* Green */
+            image.data[ l + t*4 + 2 ] = cb;     /* Blue */
+            image.data[ l + t*4 + 3 ] = 255;    /* transparency */
+       }
+     }
+   }
+
+  }
+  return;
+}
+
+/** This is high-level function.
+ * It must react to delta being more/less than zero.
+ */
+function mouseWheelHandler(delta) {
+        if (delta < 0)
+                    console.log ("delta < 0 " + delta);
+        else
+                    console.log ("delta > 0 " + delta);
+}
+
+/** Event handler for mouse wheel event.
+ */
+ 
+ 
+function wheel(event){
+        var delta = 0;
+        if (!event) /* For IE. */
+                event = window.event;
+        if (event.wheelDelta) 
+        { /* IE/Opera. */
+                delta = event.wheelDelta/120;
+        } 
+        else if (event.detail) 
+        { /** Mozilla case. */
+                /** In Mozilla, sign of delta is different than in IE.
+                 * Also, delta is multiple of 3.
+                 */
+                delta = -event.detail/3;
+        }
+        /** If delta is nonzero, handle it.
+         * Basically, delta is now positive if wheel was scrolled up,
+         * and negative, if wheel was scrolled down.
+         */
+        if (delta != 0)
+                mouseWheelHandler(delta);
+        /** Prevent default actions caused by mouse wheel.
+         * That might be ugly, but we handle scrolls somehow
+         * anyway, so don't bother here..
+         */
+        if (event.preventDefault)
+        {
+                event.preventDefault();
+        }
+        event.returnValue = false;
+}
+
+/** 
+ * Mouse wheel processing Initialization code. 
+ * If you use your own event management code, change it as required.
+   if wheel will be moved call function 'wheel'*/
+ 
+if (window.addEventListener)
+{
+        /** DOMMouseScroll is for mozilla. */
+        window.addEventListener('DOMMouseScroll', wheel, false);
+}
+/** IE/Opera. */
+window.onmousewheel = document.onmousewheel = wheel;
+
+
+
+function getPixelColor (image, x, y)
+{
+  var color;
+  var index = (y * canvasAXMax + x ) * 4;  /* Point to pixel */ 
+  color = image.data [index + 0] + 
+          image.data [index + 1] * 256 + 
+          image.data [index + 2] * 256 * 256; 
+
+  return color;
+}
+
+function setPixelColor (image, x, y, color)
+{
+  var index = (y * canvasAXMax + x ) * 4;  /* Point to pixel */ 
+  /* Set red color */
+  image.data [index + 0]  = color & 0xff;  
+  image.data [index + 1]  = (color & 0xff00)/256;
+  image.data [index + 2]  = (color & 0xff0000) / (65536) ; /* 256* 256 = 65536 */
+  image.data [index + 3]  = 255; 
+
+  return 0;
+}
+
+
+function findNextPixel (image, x, y, coord, bgcolor, fillColor)
+{
+    var x1; 
+    var y1;
+    var found = 0;
+    for (var i = 0; i < 8; i++)
+       {
+           x1 = x + xpi [i];
+           y1 = y + ypi [i];
+           color = getPixelColor (image, x1, y1);
+           if (color == fillColor)
+           {
+               continue;
+           }
+           if (color != bgcolor)
+             {
+
+                 if (i == 0)
+                 {
+                     break; /* switch direction*/
+                 }
+                 coord['x'] = x + xpi [i-1];
+                 coord['y'] = y + ypi [i-1];
+                 found = 1;
+                 break;
+             }
+           
+           /*console.log(" i= " + i + " x1= " + x1 + " y1= " + y1 + " color= " + color);*/
+       }
+       if (found == 0)
+        {
+            for (var i = 7; i > 1; i--)
+            {
+                  x1 = x + xpi [i];
+                  y1 = y + ypi [i];
+                  color = getPixelColor (image, x1, y1);
+                  if (color == bgcolor || color == fillColor)
+                  {
+
+                       coord['x'] = x + xpi [i];
+                       coord['y'] = y + ypi [i];
+                       found = 1;
+                       break;                 
+                  }
+          
+            }
+        }
+   return found;
+
+}    
+
+/* Start draw function update */
+/*setInterval("updateCursor()", 50);*/
+
+
+document.onmousemove = function(e)
+{
+
+    cursorX = e.pageX;
+    cursorY = e.pageY;
+	if (cursorX < 0 || cursorX > (0 + canvasXMax))
+	    return;
+	if (cursorY < 50 || cursorY > (50 + canvasYMax))
+		return;
+
+	if (cursorX == savedX && cursorY == savedY)  
+	{
+	    return;
+	}
+	else if (cursorX > savedX)
+	{
+	    /* mouse moved to the right. That means decrease angle. */
+		if ( screen['a'] > 10 ) 
+		{
+			screen['a']= screen['a']-1;
+		}
+	}
+	else if (cursorX < savedX)
+	{
+	    /*mouse moved to the left.Increatse angle */
+		if (screen['a'] < 170 ) 
+		{
+		    screen['a']= screen['a'] + 1;
+		}
+	}
+
+	if (cursorY > savedY)  /*  mouse was draged backward*/
+	{
+	    if ( screen['b'] < 175 ) 
+		{
+			screen['b']= screen['b'] - 1;
+		}
+	}
+	else if (cursorY < savedY)   /*mouse was pushed forward*/
+	{
+	    if ( screen['b'] > 5 ) 
+		{
+			screen['b']= screen['b'] + 1;
+		}
+	}
+	savedX=cursorX; /* Save X position for the next time */
+	savedY=cursorY; /* save Y position for the next time */
+
+    displayAll(objects);
+	
+    return; 
+
+}
+
+/* Get coordinates for iPhone touchscreen */
+document.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    var touch = e.touches[0];
+
+    cursorX = touch.pageX;
+    cursorY = touch.pageY;
+
+
+}, false);
+
+function draw_circle(imgData,xc,yc,radius,colorR,colorG,colorB)
+{
+
+  /*console.log ("x=" + xc+ " y=" + yc+ " radius=" +radius);*/
+  for ( var angle = 0.0; angle < 360.0; angle += 0.1) 
+      {
+        /* Calculate x and y on the circle  */
+        var rad = angle * (3.14159265/180);              
+
+        sina = Math.sin(rad);              
+        cosa = Math.cos(rad);
+        
+        x = Math.floor(xc + radius * cosa);
+        y = Math.floor(yc + radius * sina);
+        var index = (yc*2*y + x) * 4;
+/*
+        console.log ( x + "x" + y + " " + index + " angle = " + 
+                    angle + " sin, cos = " + sina + "," + cosa );
+*/
+        /* Put pixels on the x,y */
+        imgData.data [ index + 0 ] = colorR;
+        imgData.data [ index + 1 ] = colorG;
+        imgData.data [ index + 2 ] = colorB;
+        imgData.data [ index + 3 ] = 255;
+
+      }
+
+} 
+
+/* This finction update current status of screen position */
+
+function updateScreenStatus ()
+{
+
+ var obj = document.getElementById('currX');
+
+ if ( obj != null ) 
+ {
+     obj.value = Math.floor(screen['x']);
+ }
+ obj = document.getElementById('currY');
+
+ if ( obj != null ) 
+ {
+     obj.value = Math.floor(screen['y']);
+ }
+ obj = document.getElementById('currY');
+
+ if ( obj != null ) 
+ {
+     obj.value = Math.floor(screen['y']);
+ }
+ obj = document.getElementById('currZ');
+
+ if ( obj != null ) 
+ {
+     obj.value = Math.floor(screen['z']);
+ }
+ obj = document.getElementById('currA');
+
+ if ( obj != null ) 
+ {
+     obj.value = Math.floor(screen['a']);
+ }
+ obj = document.getElementById('currB');
+
+ if ( obj != null ) 
+ {
+     obj.value = Math.floor(screen['b']);
+ }
+
+ return;
+
+}
+/* 
+    Show status of the canvas on the screen 
+*/
+
+function displayAll (objects)
+{
+   var canvas = document.getElementById('paintcanvas');
+   var ctx    = canvas.getContext('2d');
+   var thick;
+   var cr;  /* Colors */
+   var cb;
+   var cg;
+   var k;
+   var out = Array();
+   var tgt = Array();
+   var image;
+   var distort = 0;
+   var obj = document.getElementById('ObjectNumber');
+    var objType = document.getElementById('selectedObjectType');
+   if (obj.value == 0)
+	{
+		obj.value = objects.length;
+		objType.value = "none";
+	}
+   updateScreenStatus ();
+
+   /* Clear image on teh screen */
+   ctx.fillStyle = canvasBackgroundColor;
+   ctx.fillRect(0,0,canvasXMax,canvasYMax);
+
+   if (0 )
+   {
+     console.log( 
+                    " Angle A="  + screen['a']+ 
+                    " Angle B="  + screen['b'] +
+                    " Screen: x="+ screen['x'] + 
+	                " y=" + screen['y']+ 
+                    " z=" + screen['z']);
+   }
+   /* Fill canvas with background color */ 
+   for (var i = 0 ; i < objects.length ; i++ ) 
+   {
+     thick  = objects[i]['thick'];     
+     cr = objects[i]['colorR'];  
+     cg = objects[i]['colorG']; 
+     cb = objects[i]['colorB'];  
+
+/*
+     console.log("Displaying "+ (i+1) + " Of total " + objects.length + 
+                 " Type " + objects[i]['type']+ " hedron"+ objects[i]['hedronType'] + " Thickness=" + thick +
+                  " Color: " + cr + "." + cb + "." + cg);
+*/
+
+     switch (objects[i]['type']) 
+     {
+      case "dot":
+      {
+      /* Extract canvas for processing */
+         image = ctx.getImageData(0,0,canvasXMax,canvasYMax);
+
+        tgt	['x'] = objects[i]['coord'][0][0];
+		tgt	['y'] = objects[i]['coord'][1][0];
+		tgt	['z'] = objects[i]['coord'][2][0];
+
+/*
+		console.log("processing dot " +  " tgt['x']= " +  tgt['x'] 
+		+  " tgt['y']= " +  tgt['y']+  " tgt['z']= " +  tgt['z']);
+
+*/
+		
+		transformPixel(screen,tgt,out,1); 
+
+/*
+        console.log("After transformation:  X=" 
+                    + out ['x']  + " Y="+ out ['y']+ " Z="+ out ['z']+ 
+                    " Angle A="  + screen['a']+ 
+                    " Angle B="  + screen['b'] +
+                    " Screen: x="+ screen['x'] + 
+	                " y=" + screen['y']+ 
+                    " z=" + screen['z']);
+*/
+        /* Display dot in red if screen hits the object */
+        if ( out['z'] <= 0 ) 
+        {
+           cr = 255;
+           cg = 0;
+           cb = 0; 
+        }
+        /* Control Y */
+        if ( out['y'] <= 0 ) 
+        {
+           out ['y'] = 0 ;
+        }
+        if ( out['y'] > canvasYMax ) 
+        {
+           out ['y'] = canvasYMax - thick ;
+        }
+
+        var index = (canvasXMax * out['y']+ out['x'])*4;
+        var ind = index;
+        var ind2 = index;
+        var j;
+        /* Build verical bar */
+	    for (k = 0; k < thick; k++)
+        {
+            image.data [index + 0]  = cr;  
+            image.data [index + 1]  = cg; 
+			image.data [index + 2]  = cb;  
+			image.data [index + 3]  = 255;
+			j= (k * canvasXMax) * 4;
+			index = ind + j;
+       }
+        /* Build horizontal bar */
+        for (k = 0; k < thick; k++)
+        {
+			image.data [index + 0]  = cr; 
+			image.data [index + 1]  = cg; 
+			image.data [index + 2]  = cb;  
+			image.data [index + 3]  = 255; 
+			index = ind + k*4; 
+        }
+        /* Go to right corner and draw down */
+        index = (canvasXMax * (out['y']) + out['x'] + thick-1)*4;
+        ind2 = index;
+        /* Build verical bar */
+	    for (k = 0; k < thick; k++)
+        {
+            image.data [index + 0]  = cr;  
+            image.data [index + 1]  = cg; 
+			image.data [index + 2]  = cb;  
+			image.data [index + 3]  = 255;
+			j= (k * canvasXMax) * 4;
+			index = ind2 + j;
+        }
+        index = (canvasXMax * (out['y']+ thick-1 ) + out['x'])*4;
+        ind2 = index;
+        /* Build horizontal bar */
+        for (k = 0; k < thick; k++)
+        {
+			image.data [index + 0]  = cr; 
+			image.data [index + 1]  = cg; 
+			image.data [index + 2]  = cb;  
+			image.data [index + 3]  = 255; 
+			index = ind2 + k*4; 
+        }           
+        ctx.putImageData (image,0,0);
+      } /* End of case dot */
+	  break;      
+	  
+	  
+
+      case "figure":
+	  case "axis":
+      {
+
+        image = ctx.getImageData(0,0,canvasXMax,canvasYMax);
+        var l1 = [];
+        var l2 = [];
+        var done = 0;
+        var lift_pen = 0;
+
+        /* Now transform figure nodes and show as sequence of lines */
+
+        for ( k  = 0 ; k < 500 && done == 0  ; k++ ) 
+        {
+
+
+           lift_pen = 0; /* Is that invisible line ? */
+           /* Get coordinates of the node in the space  and transform */
+           /* One end of the line */     
+
+
+           tgt	['x'] = objects[i]['coord'][0][k];  /* X coordinate of k pixel */
+		   tgt	['y'] = objects[i]['coord'][1][k];  /* Y coordinate of k pixel */
+		   tgt	['z'] = objects[i]['coord'][2][k];  /* Z coordinate of k pixel */
+
+           if ( tgt['x'] == -invis &&  tgt['z'] == -invis &&  tgt['z'] == -invis) 
+           {
+              lift_pen = 1;  /* Draw invisible line */
+           } 
+           
+
+
+           if (objects[i]['type'] == "axis")
+		   {
+				transformPixel (screen, tgt, l1,0); 
+                distort = 0;
+		   }
+		   else
+		   {
+                transformPixel (screen, tgt, l1,1);
+                distort = 1;
+		   }
+           /* Second end of the line */                
+           tgt	['x'] = objects[i]['coord'][0][k+1];
+		   tgt	['y'] = objects[i]['coord'][1][k+1];
+		   tgt	['z'] = objects[i]['coord'][2][k+1];
+
+           /* Check if it is end of the nodes */
+           if ( tgt['x'] == -1 &&  tgt['z'] == -1 &&  tgt['z'] == -1) 
+           {
+              if ( k == 1 ) 
+              {
+                  break;       /* Only two points. it is line and it is already done */
+              }
+
+              /* Connect back to the first pixel */
+              tgt	['x'] = objects[i]['coord'][0][0];
+		      tgt	['y'] = objects[i]['coord'][1][0];
+		      tgt	['z'] = objects[i]['coord'][2][0];
+              done = 1;
+
+           } 
+           if ( tgt['x'] == -invis &&  tgt['z'] == -invis &&  tgt['z'] == -invis) 
+           {
+              lift_pen = 1;  /* Draw invisible line */
+
+           } 
+
+           if (objects[i]['type'] == "axis")
+		   {
+				transformPixel (screen, tgt, l2,0); 
+                distort = 0;
+		   }
+		   else
+		   {
+                transformPixel (screen, tgt, l2,1);
+                distort = 1;
+		   }                  
+
+/*
+		   console.log("k = " + k + " Line start " + l1['x'] + "." + l1['y'] + "." + l1['z'] );
+		   console.log("Line end   " + l2['x'] + "." + l2['y'] + "." + l2['z'] );
+*/       
+           /* Now we have coordinates of 2 line ends. Build the line */                  
+
+           if ( lift_pen == 0  ) 
+           {
+               draw_line(image, l1, l2, thick, cr, cg, cb, distort);                
+               ctx.putImageData (image,0,0);
+           }
+        } 
+      }
+      break;
+
+      default:
+          console.log("Not recognized object type " + objects[i]['type']);
+      break;  
+     }  /* End of switch */
+   }    /* End of for all objects */
+
+
+}
+
+function updateCursor()
+{
+  var canvas = document.getElementById('paintcanvas');
+  var ctx    = canvas.getContext('2d');
+
+  var newX = cursorX-canvasAX;
+  var newY = cursorY-canvasAY;
+
+  var Xdisplay = document.getElementById('Xdisplay');
+  var Ydisplay = document.getElementById('Ydisplay');
+  var changed = 0;
+ 
+  /* Show coordinates of the mouse inside canvas */
+  /* Show only values inside canavs */ 
+   if ( newX >= 0 && newX <= (canvasAXMax))  
+   {
+
+      if ( newY >= 0 && newY <= canvasAYMax) 
+      {
+         Xdisplay.value = newX;
+         Ydisplay.value = newY;
+      }
+      else
+      {
+          return;  /* Out of Y zone */
+      }
+   }
+   else
+   {
+     return;  /* Out of X zone */                           
+   }
+
+/*
+  console.log ("Update Cursor " + cursorX + "." + cursorY);
+*/
+
+                          
+  if ( startDraw ==  1) 
+  {
+    switch (selectedTool ) 
+    {
+      case "square":
+                          
+        if ( objectStarted == 0 ) 
+        {
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+
+          objects[objectIndex] = new Array();
+          /* Start new object. Save initial coordinates */
+          objects[objectIndex]['type'] = 'square';
+          objects[objectIndex]['x'] = newX;  /* Start X coordinate of teh image */
+          objects[objectIndex]['y'] = newY;  /* Start Y coordinate of the image */
+          objects[objectIndex]['xe'] = 0;
+          objects[objectIndex]['ye'] = 0;
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+          objects[objectIndex]['thickness'] = thick;
+
+          objectStarted = 1;
+
+        }
+        else
+        {
+          /* We are in the middle of object definition */
+          /* Use current coordinates as low/right corner */
+          if ( (newX - objects[objectIndex]['x']) != objects[objectIndex]['xe'] ||
+               (newY - objects[objectIndex]['y']) != objects[objectIndex]['ye'] ) 
+          {
+            /* Update coordinates and set changed flag  */ 
+
+            if ( (newX - objects[objectIndex]['x']) > 0 )                 
+                objects[objectIndex]['xe'] = newX - objects[objectIndex]['x'];
+
+            if ( (newY - objects[objectIndex]['y']) > 0 )                 
+                objects[objectIndex]['ye'] = newY - objects[objectIndex]['y'];
+
+            /*console.log ("Drawing square no: " + 
+                          objects[objectIndex]['x'] + "." + 
+                          objects[objectIndex]['y'] + "/" +
+                          objects[objectIndex]['xe']  + "." + 
+                          objects[objectIndex]['ye'] );*/
+            changed = 1;
+          }
+        }
+
+      break;
+
+      
+      case "circle":
+                          
+        if ( objectStarted == 0 ) 
+        {
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+
+          objects[objectIndex] = new Array();
+          /* Start new object. Save initial coordinates */
+          objects[objectIndex]['type'] = 'circle';
+          objects[objectIndex]['x'] = newX;/* Start centerX coordinate of teh image */
+          objects[objectIndex]['y'] = newY;/* Start centerY coordinate of the image */
+          objects[objectIndex]['radius'] = 0;
+          objects[objectIndex]['ye']= 0;
+          objects[objectIndex]['xe']= 0;
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+          objects[objectIndex]['thickness'] = thick;
+
+          objectStarted = 1;
+
+        }
+        else
+        {
+          /* We are in the middle of object definition */
+          /* Use current coordinates as low/right corner */
+          if ( (newX - objects[objectIndex]['x']) != objects[objectIndex]['xe'] ||
+               (newY - objects[objectIndex]['y']) != objects[objectIndex]['ye'] ) 
+          {
+            /* Update coordinates and set changed flag  */ 
+            /* We need to have square here */
+            if ( (newX - objects[objectIndex]['x']) > 0 )
+            {                 
+                objects[objectIndex]['xe'] = newX - objects[objectIndex]['x'];
+                objects[objectIndex]['ye'] = newX - objects[objectIndex]['x'];
+            }
+            objects[objectIndex]['radius']= objects[objectIndex]['xe']; 
+           /* console.log ("Drawing circle: radius: " +  
+				   objects[objectIndex]['radius']+" coord "+
+
+                          objects[objectIndex]['x'] + "." + 
+                          objects[objectIndex]['y'] + "/" +
+                          objects[objectIndex]['xe']  + "." + 
+                          objects[objectIndex]['ye'] );*/
+            changed = 1;
+          }
+        }
+
+      break;
+
+      case "pencil":
+        if ( objectStarted == 0 ) 
+        {
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+
+          objects[objectIndex] = new Array();
+          /* Start new object. Save initial coordinates */
+          objects[objectIndex]['type'] = 'pencil';
+          objects[objectIndex]['x'] = newX;/* Start X coordinate of the curve */
+          objects[objectIndex]['y'] = newY;/* Start Y coordinate of the curve */
+          objects[objectIndex]['ye']= new Array();
+          objects[objectIndex]['xe']= new Array();
+          objects[objectIndex]['xprev'] = newX; /* Prev X coordinate of the curve */
+          objects[objectIndex]['yprev'] = newY; /* Prev Y coordinate of the curve */
+          objects[objectIndex]['npi']= 0;
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+          objects[objectIndex]['thickness'] = thick;
+
+          objectStarted = 1;
+
+        }
+        else
+        {
+          var npi = objects[objectIndex]['npi'];
+
+          /* Check if coordinates actually changhed */                       
+          if ( (newX != objects[objectIndex]['xprev']) ||
+               (newY != objects[objectIndex]['yprev']) ) 
+          {
+              /* Do not take negative values */                   
+              /* We are in the middle of object definition */
+              /* Use current coordinates as coordinates of new point */
+              /* Check that number of dots is not too large */
+              if ( npi < maxDotsForPencil ) 
+              {
+                objects[objectIndex]['npi'] = npi + 1;
+                objects[objectIndex]['xe'][npi]= newX;
+                objects[objectIndex]['ye'][npi]= newY;
+                objects[objectIndex]['xprev'] = newX;
+                objects[objectIndex]['yprev'] = newY;
+                changed = 1;
+                /* Display current number of dots */                
+                var objIdx = document.getElementById('numberOfDots');
+                objIdx.value = npi;
+              }
+          }
+        }
+
+      break;
+
+    case "line":
+      {
+        if ( objectStarted == 0 ) 
+        {
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+
+          objects[objectIndex] = new Array();
+          /* Start new object. Save initial coordinates */
+          objects[objectIndex]['type'] = 'line';
+          objects[objectIndex]['x'] = newX;  /* Start X coordinate of teh image */
+          objects[objectIndex]['y'] = newY;  /* Start Y coordinate of the image */
+          objects[objectIndex]['xe'] = 0;
+          objects[objectIndex]['ye'] = 0;
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+          objects[objectIndex]['thickness'] = thick;
+
+          objectStarted = 1;
+
+        }
+        else
+        {
+          /* We are in the middle of object definition */
+          /* Use current coordinates as low/right corner */
+          if ( (newX - objects[objectIndex]['x']) != objects[objectIndex]['xe'] ||
+               (newY - objects[objectIndex]['y']) != objects[objectIndex]['ye'] ) 
+          {
+            /* Update coordinates and set changed flag  */ 
+
+           
+                objects[objectIndex]['xe'] = newX;
+
+           
+                objects[objectIndex]['ye'] = newY;
+
+            /*console.log ("Drawing line: " + 
+                          objects[objectIndex]['x'] + "." + 
+                          objects[objectIndex]['y'] + "/" +
+                          objects[objectIndex]['xe']  + "." + 
+                          objects[objectIndex]['ye'] );*/
+            changed = 1;
+          }
+        }
+      }
+    break; /*end of line case*/
+
+    case "fill":
+      {
+
+        if ( objectStarted == 0 )
+        {
+
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+          objects[objectIndex] = new Array();
+          objects[objectIndex]['type'] = 'fill';
+          objects[objectIndex]['x'] = newX;  /* Start X coordinate of teh image */
+          objects[objectIndex]['y'] = newY;  /* Start Y coordinate of the image */
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+  
+          changed = 1;
+          console.log ("Fill Object creation finished: " + objectIndex);
+          startDraw = 0;               
+          objectStarted = 0;
+          selectedColorR = 0;
+          selectedColorG = 0;
+          selectedColorB = 0;
+          selectedTool = "none";
+          var ToolId = document.getElementById ('selectedToolId');
+          ToolId.value = "none";
+          var colorBG = document.getElementById('selectedColorBG'); 
+          colorBG.style.backgroundColor = "#"+ toHex(selectedColorR) + 
+          toHex(selectedColorG) +  toHex(selectedColorB); 
+          objectIndex ++;  /* Move to the next object */
+        } 
+        else
+        {
+          console.log("end fill object");
+          startDraw = 0;               
+          break;  /* Do nothing */               
+        }
+      }
+      break; /*end of fill case*/
+
+    } /* End of switch */ 
+  }
+  else  /* Object not started */
+  {
+    if (objectStarted == 1 ) 
+    {
+      /* Object finished. */
+       console.log ("Object creation finished: " + objectIndex);
+
+       objectStarted = 0;
+       selectedColorR = 0;
+       selectedColorG = 0;
+       selectedColorB = 0;
+       selectedTool = "none";
+       var ToolId = document.getElementById ('selectedToolId');
+       ToolId.value = "none";
+       var colorBG = document.getElementById('selectedColorBG'); 
+       colorBG.style.backgroundColor = "#"+ toHex(selectedColorR) + 
+       toHex(selectedColorG) +  toHex(selectedColorB); 
+
+      objectIndex ++;  /* Move to the next object */
+    }
+  }
+
+  /* Display all objects */
+  if ( changed == 1 ) 
+  {
+    displayAll(objects);
+  }
+}
+
+function ColorSelect(r,g,b) 
+{
+
+  selectedColorR = r;
+  selectedColorG = g;
+  selectedColorB = b;
+
+  var colorBG = document.getElementById('selectedColorBG'); 
+  colorBG.style.backgroundColor = "#"+ toHex(r) +  toHex(g) +  toHex(b);   
+  return (false);
+}
+
+function displayPixel(context,pixel,color)
+{
+	
+	var image = context.getImageData(
+                          0,0,canvasXMax,canvasYMax);
+      var index = (canvasXMax * pixel['y']+ pixel['x'])*4;
+
+	
+
+     
+	var ind = index;
+      var j;
+	   for (var i = 0; i<10; i++)
+      {
+
+      image.data [index + 0]  = color & 0xff;  
+      image.data [index + 1]  = (color & 0xff00)/256;
+      image.data [index + 2]  = (color & 0xff0000) / (65536) ; /* 256* 256 = 65536 */
+      image.data [index + 3]  = 255;
+	j= (i*canvasXMax)* 4;
+      index = ind + j;
+	
+
+      }
+      
+      for (var i = 0; i<10; i++)
+      {
+
+      image.data [index + 0]  = color & 0xff;  
+      image.data [index + 1]  = (color & 0xff00)/256;
+      image.data [index + 2]  = (color & 0xff0000) / (65536) ; /* 256* 256 = 65536 */
+      image.data [index + 3]  = 255; 
+      index = ind + i*4; 
+      }
+      
+	context.putImageData (image,0,0);
+
+
+}
+
+
+document.onkeydown_deleted= function(event) 
+{
+    var out = [];
+    var keyCode = event.keyCode;
+    console.log(" gotKey= " + keyCode);
+
+    if (keyCode == 65)/*a move left*/
+    {
+        if (1 || screen['y'] > 0)
+        {
+            screen['y']= screen['y']-step;
+        }
+    }
+    if (keyCode == 68)/*d move right*/
+    {
+        if (screen['y']<canvasXMax*2)
+        {
+            screen['y']= screen['y']+step;
+        }
+    } 
+    
+    if (keyCode == 32)/*space move up*/
+    {
+        if (screen['z']<1000)
+        {
+            screen['z']= screen['z']+step;
+        }
+    }  
+    
+    if (keyCode == 16)/*shift move down*/
+    {
+        if (screen['z']>0)
+        {
+            screen['z']= screen['z']-step;
+        }
+    } 
+    if (keyCode == 87)/*w move forward*/
+    {
+        if (screen['x']>0)
+        {
+            screen['x']= screen['x']-step;
+        }
+    }
+    if (keyCode == 83)/*s move backward*/
+    {
+        if (screen['x']<canvasXMax*2)
+        {
+            screen['x']= screen['x']+step;
+        }
+    } 
+    displayAll(objects);
+
+    return; 
+
+}
+
+document.onkeyup= function(event) 
+{
+    window.onkeypress = void (0);
+}
+
+
+
+
+function selectTool(tool) 
+{
+
+  switch (tool)
+  {
+    case "size tiny":
+    thick=1;
+    break;
+
+    case "size small":
+    thick=2;
+    break;
+
+    case "size medium":
+    thick=4;
+    break;
+
+    case "size large":
+    thick=8;
+    break;
+
+    case "thickselect": 
+    var thickl = document.getElementById('thickselect'); 
+    thick=parseInt(thickl.value);
+    break;
+ 
+
+    default:
+    selectedTool = tool;
+    
+    var ToolId = document.getElementById ('selectedToolId');
+    ToolId.value = tool;
+    if (selectedTool == "eraser")
+    {
+       selectedTool = "pencil";
+       
+       selectedColorR = canvasBackgroundColorR;
+       selectedColorG = canvasBackgroundColorG;
+       selectedColorB = canvasBackgroundColorB;
+    }
+    break;
+  }              
+  console.log ("Select tool " + selectedTool + ' thicknes : '+thick);             
+  return (false);
+}
+
+function toHex(n) {
+ n = parseInt(n,10);
+ if (isNaN(n)) return "00";
+ n = Math.max(0,Math.min(n,255));
+ return "0123456789ABCDEF".charAt((n-n%16)/16)
+      + "0123456789ABCDEF".charAt(n%16);
+}
+
+function ColorSelect(r,g,b) 
+{
+
+  selectedColorR = r;
+  selectedColorG = g;
+  selectedColorB = b;
+
+  var colorBG = document.getElementById('selectedColorBG'); 
+  colorBG.style.backgroundColor = "#"+ toHex(r) +  toHex(g) +  toHex(b);   
+  return (false);
+}
+
+function startStop ()
+{
+ var stst = document.getElementById('startStop');
+
+
+  if ( startDraw == 0 ) 
+  {
+    startDraw = 1;
+    stst.value = "Stop";
+  }
+  else
+  {
+    startDraw = 0;
+    stst.value = "Start";
+  }
+ return false;
+}
+
+function savePaint ( )
+{
+  var storage = document.getElementById('storageName');
+
+ if (storage != null ) 
+ {
+   if ( storage.value != "" ) 
+   {
+	/* check if storage name is defined*/
+      var name = storage.value + "_"; 
+
+	/* save number of objects */
+	localStorage.setItem (name + "total", objects.length);
+   
+	/* go through all objects */
+	for(var i = 0 ; i < objects.length; i++)
+      {
+        switch ( objects [i]['type'])
+        {
+          case "square":
+          {
+            localStorage.setItem (name + "type_" + i,objects [i]['type'] );
+            localStorage.setItem (name + "colorR_" + i ,objects [i] ['colorR']);
+            localStorage.setItem (name + "colorG_" + i ,objects [i] ['colorG']);
+            localStorage.setItem (name + "colorB_" + i ,objects [i] ['colorB']);
+            localStorage.setItem (name + "xe_" + i ,objects [i]['xe']);
+            localStorage.setItem (name + "ye_" + i ,objects [i]['ye']);
+            localStorage.setItem (name + "x_" + i ,objects [i]['x']);
+            localStorage.setItem (name + "y_" + i ,objects [i]['y']);
+            localStorage.setItem (name + "thickness_" + i ,objects [i]['thickness']);
+          }
+          case "circle":
+          
+          {
+            localStorage.setItem (name + "type_" + i,objects [i]['type'] );
+            localStorage.setItem (name + "colorR_" + i ,objects [i] ['colorR']);
+            localStorage.setItem (name + "colorG_" + i ,objects [i] ['colorG']);
+            localStorage.setItem (name + "colorB_" + i ,objects [i] ['colorB']);
+            localStorage.setItem (name + "xe_" + i ,objects [i]['xe']);
+            localStorage.setItem (name + "ye_" + i ,objects [i]['ye']);
+            localStorage.setItem (name + "x_" + i ,objects [i]['x']);
+            localStorage.setItem (name + "y_" + i ,objects [i]['y']);
+            localStorage.setItem (name + "thickness_" + i ,objects [i]['thickness']);
+            localStorage.setItem (name + "radius_"+ i, objects [i]['radius'] );
+          }
+
+          case "pencil":
+          {
+            localStorage.setItem (name + "type_" +   i ,objects [i]['type'] );
+            localStorage.setItem (name + "colorR_" + i ,objects [i] ['colorR']);
+            localStorage.setItem (name + "colorG_" + i ,objects [i] ['colorG']);
+            localStorage.setItem (name + "colorB_" + i ,objects [i] ['colorB']);
+            localStorage.setItem (name + "x_"  +     i ,objects [i]['x']);
+            localStorage.setItem (name + "y_"  +     i ,objects [i]['y']);
+            localStorage.setItem (name + "npi_"  +   i ,objects [i]['npi']);
+            localStorage.setItem (name + "thickness_" + i ,objects [i]['thickness']);
+
+            localStorage.setItem (name + "xe_" +     i ,JSON.stringify(objects[i]['xe']));
+            localStorage.setItem (name + "ye_" +     i ,JSON.stringify(objects[i]['ye']));
+                        
+          }
+            
+          case "line":
+          {
+            localStorage.setItem (name + "type_" + i,objects [i]['type'] );
+            localStorage.setItem (name + "colorR_" + i ,objects [i] ['colorR']);
+            localStorage.setItem (name + "colorG_" + i ,objects [i] ['colorG']);
+            localStorage.setItem (name + "colorB_" + i ,objects [i] ['colorB']);
+            localStorage.setItem (name + "xe_" + i ,objects [i]['xe']);
+            localStorage.setItem (name + "ye_" + i ,objects [i]['ye']);
+            localStorage.setItem (name + "x_" + i ,objects [i]['x']);
+            localStorage.setItem (name + "y_" + i ,objects [i]['y']);
+            localStorage.setItem (name + "thickness_" + i ,objects [i]['thickness']);
+          }
+         
+          case "fill" :
+          {     
+            localStorage.setItem(name + "type_"    + i, objects[i]['type']);
+            localStorage.setItem(name + "colorsR_" + i, objects[i]['colorR']);    
+            localStorage.setItem(name + "colorsG_" + i, objects[i]['colorG']);    
+            localStorage.setItem(name + "colorsB_" + i, objects[i]['colorB']);    
+            localStorage.setItem(name + "x_"  + i, objects[i]['x']);
+            localStorage.setItem(name + "y_"  + i, objects[i]['y']);            
+          }
+
+        }
+
+      }
+        console.log("All objects saved to "  + name);
+   }/* check if value is empty */
+   else
+   {
+       alert ("Please specify archive name");                 
+   }
+ }/* check is storage name was found */             
+} 
+
+
+
+function restorePaint ( )
+{
+ var storage = document.getElementById('storageName');
+
+ if (storage != null ) 
+ {
+   if ( storage.value != "" ) 
+   {
+
+   /* check if storage name is defined*/
+   var name = storage.value + "_";
+
+
+   /*retreave total number of objects*/
+   var tott = localStorage.getItem (name + "total");                      
+
+   if ( tott == null ) 
+   {
+     alert ("Storage " + storage.value + " is empty! Check storage name"); 
+     return;                    
+   }
+
+  var totObj = parseInt(localStorage.getItem (name + "total"));
+  var type;
+
+  console.log ("total= " + totObj + " restoring from "  + name);
+
+
+  /* go through all objects */
+  for(var i = 0 ; i < totObj; i++)
+  {
+    type = localStorage.getItem (name + "type_"+i);
+    console.log("type= " + type );
+    switch (type)
+    {
+    case "square":
+      {
+         objects[i]= new Array();
+         objects [i] ['type']= type;
+            objects[i]['colorR']= parseInt(localStorage.getItem (name + "colorR_" + i));
+            objects[i]['colorG']= parseInt(localStorage.getItem (name + "colorG_" + i));
+            objects[i]['colorB']= parseInt(localStorage.getItem (name + "colorB_" + i));
+            objects[i]['xe']    = parseInt(localStorage.getItem (name + "xe_"     + i));
+            objects[i]['ye']    = parseInt(localStorage.getItem (name + "ye_"     + i));
+            objects[i]['x']     = parseInt(localStorage.getItem (name + "x_"      + i));
+            objects[i]['y']     = parseInt(localStorage.getItem (name + "y_"      + i));
+            objects[i]['thickness']= parseInt(localStorage.getItem (name + "thickness_" + i));
+            objectIndex ++;
+            break;
+
+      }
+
+     case "circle":
+      {
+         objects[i]= new Array();
+         objects [i] ['type']= type;
+            objects[i]['colorR']= parseInt(localStorage.getItem (name + "colorR_" + i));
+            objects[i]['colorG']= parseInt(localStorage.getItem (name + "colorG_" + i));
+            objects[i]['colorB']= parseInt(localStorage.getItem (name + "colorB_" + i));
+            objects[i]['radius']= parseInt(localStorage.getItem (name + "radius_" + i));
+            objects[i]['xe']    = parseInt(localStorage.getItem (name + "xe_"     + i));
+            objects[i]['ye']    = parseInt(localStorage.getItem (name + "ye_"     + i));
+            objects[i]['x']     = parseInt(localStorage.getItem (name + "x_"      + i));
+            objects[i]['y']     = parseInt(localStorage.getItem (name + "y_"      + i));
+            objects[i]['thickness']= parseInt(localStorage.getItem (name + "thickness_" + i));
+            objectIndex ++;
+            break;
+      }
+
+     
+     case "pencil":
+      {
+         objects[i]= new Array();
+
+         objects[i]['type'] = type;
+
+         objects[i]['colorR']= parseInt(localStorage.getItem (name + "colorR_" + i));
+         objects[i]['colorG']= parseInt(localStorage.getItem (name + "colorG_" + i));
+         objects[i]['colorB']= parseInt(localStorage.getItem (name + "colorB_" + i));
+         objects[i]['thickness'] = parseInt ( localStorage.getItem (name + "thickness_" + i));
+         objects[i]['x']         = parseInt ( localStorage.getItem (name + "x_"         + i));
+         objects[i]['y']         = parseInt ( localStorage.getItem (name + "y_"         + i));
+         objects[i]['npi']       = parseInt ( localStorage.getItem (name + "npi_"       + i));
+
+         var lx = "[" + localStorage.getItem(name + "xe_" + i) + "]";
+         var ly = "[" + localStorage.getItem(name + "ye_" + i) + "]";             
+
+         objects[i]['xe']        = new Array();             
+         objects[i]['xe']        = JSON.parse (lx);
+
+         objects[i]['ye']        = new Array();
+         objects[i]['ye']        = JSON.parse (ly);
+
+         objectIndex ++;
+         break;
+      }
+     
+    case "line":
+      {
+         objects[i]= new Array();
+         objects [i] ['type']= type;
+            objects[i]['colorR']= parseInt(localStorage.getItem (name + "colorR_" + i));
+            objects[i]['colorG']= parseInt(localStorage.getItem (name + "colorG_" + i));
+            objects[i]['colorB']= parseInt(localStorage.getItem (name + "colorB_" + i));
+            objects[i]['xe']    = parseInt(localStorage.getItem (name + "xe_"     + i));
+            objects[i]['ye']    = parseInt(localStorage.getItem (name + "ye_"     + i));
+            objects[i]['x']     = parseInt(localStorage.getItem (name + "x_"      + i));
+            objects[i]['y']     = parseInt(localStorage.getItem (name + "y_"      + i));
+            objects[i]['thickness']= parseInt(localStorage.getItem (name + "thickness_" + i));
+            objectIndex ++;
+            break;
+
+      }
+    case "fill" : 
+      {
+            objects[i] = new Array();
+            objects[i]['type']      = type;
+            objects[i]['colorR']    = parseInt( localStorage.getItem (name + "colorsR_" + i));
+            objects[i]['colorG']    = parseInt( localStorage.getItem (name + "colorsG_" + i));
+            objects[i]['colorB']    = parseInt( localStorage.getItem (name + "colorsB_" + i));
+            objects[i]['x']         = parseInt( localStorage.getItem (name + "x_"   + i));
+            objects[i]['y']         = parseInt( localStorage.getItem (name + "y_"   + i));
+            objectIndex ++;
+
+            break;
+      }
+
+    } /* end of swith*/
+  
+  }  /* end of for */
+  displayAll (objects);
+  }  /* check if value is empty */
+  else
+  {
+    alert ("Please specify storage name!");
+  }
+ }   /* check if storage name was found */  
+
+}
+function help()
+{
+  alert ("This program simulates human eye movement in 3D space.\n\n" + 
+         "Keys to control screen position: \n" +
+         "w       increase X position (forward)  \n" + 
+         "s       decrease X position (backwards)  \n" + 
+         "a       decrease Y position (right)  \n" + 
+         "d       increase Y position (left)  \n" + 
+         "space   crease   Z position (up)  \n" + 
+         "shift   decrease Z position (down)  \n\n" +
+         "Mouse movements:\n" + 
+         "Left    increase screen angle\n" + 
+         "Right   decrease screen angle\n" + 
+         "Forward tilt forward\n" + 
+         "Back    tilt backward\n" + 
+
+         "");
+  
+}
+function ChangeFocus (mode)
+{
+	var obj;
+	obj = document.getElementById('currFocus');
+    
+	if ( obj != null ) 
+	{
+		if (mode == ('up'))
+		{    
+			if (focus < 4000)
+			{
+				obj.value = focus + 100;
+			}   
+		}
+		else
+		{
+			if (focus > 300)
+			{
+				obj.value = focus - 100 ;
+			}
+		}
+		focus = Math.floor(obj.value);
+		displayAll(objects);
+	}
+}
+
+
+
+function build_hedron()
+{
+    var size = -1;
+	var Xpos = -1;
+	var Ypos = -1;
+	var Zpos = -1;
+	var obj;
+	var colorR= 0;
+	var colorG= 0;
+	var colorB= 0;
+	
+	var selected_object;
+	obj = document.getElementById('hedronType');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected hedron = " + obj.value );
+		selected_object = obj.value;
+	}
+	obj = document.getElementById('cSize');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected size = " + obj.value );
+		size=parseInt(obj.value);
+	}
+	
+    obj = document.getElementById('Xpos');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected Xpos = " + obj.value );
+		Xpos=parseInt(obj.value);
+	}
+	
+	  obj = document.getElementById('Ypos');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected Ypos = " + obj.value );
+		Ypos=parseInt(obj.value);
+	}
+	
+	  obj = document.getElementById('Zpos');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected Zpos = " + obj.value );
+		Zpos=parseInt(obj.value);
+	}
+	
+	 /* Now get all color values from sliders */
+  var sliderCol = document.getElementById("sliderRM");
+  colorR = parseInt ( sliderCol.value);
+  var sliderCol = document.getElementById("sliderGM");
+  colorG = parseInt ( sliderCol.value);
+  var sliderCol = document.getElementById("sliderBM");
+  colorB = parseInt ( sliderCol.value);
+  
+	if (size != -1 && Xpos != -1 && Ypos != -1 && Zpos != -1)
+	{
+	console.log("Building " + selected_object );
+		o++;
+		if (selected_object == "dodecahedron")
+		{
+			build_dodecahedron_object(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		else if (selected_object == "cube")
+		{
+			console.log("Build cube" + selected_object );
+			build_cube_object(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		else if (selected_object == "tetrahedron")
+		{
+			console.log("Build tetra" + selected_object );
+			build_tetra_object(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		else if (selected_object == "octahedron")
+		{
+			console.log("Build octahedron" + selected_object );
+			build_Octahedron_object(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		else if (selected_object == "icosahedron")
+		{
+			console.log("Build icosahedron" + selected_object );
+			build_icosahedron_object_v(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		
+		displayAll(objects);
+	}
+}
+
+
+function rebuild_hedron()
+{
+    var size = -1;
+	var Xpos = -1;
+	var Ypos = -1;
+	var Zpos = -1;
+	var obj;
+	var colorR= 0;
+	var colorG= 0;
+	var colorB= 0;
+	var o = 0;
+	objNumber = document.getElementById('ObjectNumber');
+	console.log("rebuilding ObjectNumber " + objNumber.value);
+    if (parseInt(objNumber.value) < userObjectsStarts )
+	{
+		return;
+	}
+	
+	
+	obj = document.getElementById('cSize');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected size = " + obj.value );
+		size=parseInt(obj.value);
+	}
+	
+    obj = document.getElementById('Xpos');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected Xpos = " + obj.value );
+		Xpos=parseInt(obj.value);
+	}
+	
+	  obj = document.getElementById('Ypos');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected Ypos = " + obj.value );
+		Ypos=parseInt(obj.value);
+	}
+	
+	  obj = document.getElementById('Zpos');
+    
+	if ( obj != null ) 
+	{
+		console.log("selected Zpos = " + obj.value );
+		Zpos=parseInt(obj.value);
+	}
+	
+	 /* Now get all color values from sliders */
+  var sliderCol = document.getElementById("sliderRM");
+  colorR = parseInt ( sliderCol.value);
+  var sliderCol = document.getElementById("sliderGM");
+  colorG = parseInt ( sliderCol.value);
+  var sliderCol = document.getElementById("sliderBM");
+  colorB = parseInt ( sliderCol.value);
+  
+	if (size != -1 && Xpos != -1 && Ypos != -1 && Zpos != -1)
+	{
+	
+		o = parseInt (objNumber.value);
+		console.log("Building " + o );
+		
+		selected_object =  objects[o]['hedronType'];
+		
+		if (selected_object == "dodecahedron")
+		{
+			build_dodecahedron_object(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		
+		else if (selected_object == "cube")
+		{
+			console.log("Build " + selected_object );
+			build_cube_object(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		else if (selected_object == "tetrahedron")
+		{
+			console.log("Build " + selected_object );
+			build_tetra_object(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		else if (selected_object == "octahedron")
+		{
+			console.log("Build " + selected_object );
+			build_Octahedron_object(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		else if (selected_object == "icosahedron")
+		{
+			console.log("Build " + selected_object );
+			build_icosahedron_object_v(o, size, Xpos,Ypos,Zpos,colorR,colorG,colorB);
+			
+		}
+		
+		displayAll(objects);
+	}
+}
+
+
+function Change_hedron()
+{
+	console.log ("Change Hedron called ");
+	/* Find button object for change */
+	var buttonObj = document.getElementById("ChangeObj");
+	/* Check if we are in the change mode */
+	if ( inChangeMode == 1 ) 
+	{
+		/* Switch to build mode */
+		buttonObj.value = "Change";
+		inChangeMode =0; /* Not in chnge mode anymore */
+	}
+	else	
+	{
+		buttonObj.value = "Done change";
+		inChangeMode = 1;  /* Mark that we are in change mode */
+	}
+	return;
+	
+}
+
+function sliderPosEv(slider)
+{
+
+ var RB = document.getElementById("sliderRM");
+ var GB = document.getElementById("sliderGM");
+ var BB = document.getElementById("sliderBM");
+ var CS = document.getElementById("colorSelectorEv");
+ var ov;
+ var colorR = RB.value;
+ var colorG = GB.value;
+ var colorB = BB.value;
+  switch (slider)
+  { 
+	case "sliderRL":
+	{
+		
+		
+		ov = Math.floor (RB.value);
+		if ((ov - colorStep)< 0)
+		{
+			ov = 0;
+			colorR = ov ;
+			RB.value = ov ;
+		}
+		else
+		{
+		    colorR = ov - colorStep;
+			RB.value = ov - colorStep;
+		}
+		break;
+	}
+	case "sliderRR":
+	{
+		
+		ov = Math.floor (RB.value);
+		if ((ov + colorStep) >= 255)
+		{
+			
+			ov = (255);
+			colorR = ov ;
+			RB.value = ov ;
+		}
+		else
+		{
+			colorR = ov + colorStep;
+			RB.value = ov + colorStep;
+		}
+		break;
+	}
+	case "sliderGL":
+	{
+		
+		ov = Math.floor (GB.value);
+		if ((ov - colorStep)< 0)
+		{
+			ov = 0;
+			colorG = ov ;
+			GB.value = ov ;
+		}
+		else
+		{
+		    colorG = ov - colorStep;
+			GB.value = ov - colorStep;
+		}
+		break;
+	}
+	case "sliderGR":
+	{
+		
+		ov = Math.floor (GB.value);
+		if ((ov + colorStep) >= 255)
+		{
+			
+			ov = (255);
+			colorG = ov ;
+			GB.value = ov ;
+		}
+		else
+		{
+			colorG = ov + colorStep;
+			GB.value = ov + colorStep;
+		}
+		
+		break;
+	}
+	case "sliderBL":
+	{
+		
+		ov = Math.floor (BB.value);
+		if ((ov - colorStep)< 0)
+		{
+			ov = 0;
+			colorB = ov ;
+			BB.value = ov ;
+		}
+		else
+		{
+		    colorB = ov - colorStep;
+			BB.value = ov - colorStep;
+		}
+		break;
+	}
+	case "sliderBR":
+	{
+
+		ov = Math.floor (BB.value);
+		if ((ov + colorStep) >= 255)
+		{
+			
+			ov = (255);
+			colorB = ov ;
+			BB.value = ov ;
+		}
+		else
+		{
+			colorB = ov + colorStep;
+			BB.value = ov + colorStep;
+		}
+		break;
+	}
+
+	
+
+  }
+
+    CS.style.backgroundColor = "#"+ toHex(colorR) + 
+                                  toHex(colorG) +  toHex(colorB);
+	
+	if ( inChangeMode == 1 )
+	{
+		rebuild_hedron(objects);
+	}
+	
+  return;
+}
+
+
+function ObjSelector(how)
+{
+
+var obj = document.getElementById('ObjectNumber');
+var objType = document.getElementById('selectedObjectType');
+var selectedObjectNumber;
+    selectedObjectNumber = parseInt(obj.value);
+    if ( objects.length == userObjectsStarts)
+    {
+		return; /* No user objects created yet */
+	}	
+	if (how == 'up')
+		{
+			if (obj.value < (objects.length -1 ))
+			{
+			    /* Allw to increase */
+				 selectedObjectNumber++;
+			}
+		}
+	else
+		{
+			if (selectedObjectNumber > (userObjectsStarts ))
+			{
+				selectedObjectNumber --;
+			}
+		}
+	console.log("Object number selected " + selectedObjectNumber + 
+	            " Next Object " + objects.length);
+	obj.value = selectedObjectNumber;  /* Update number */
+	objType.value = objects[selectedObjectNumber]['hedronType']; /* Update text */
+}
+
+function ChangeLocation (Button)
+{
+var SizeObj = document.getElementById('cSize');
+var XObj = document.getElementById('Xpos');
+var YObj = document.getElementById('Ypos');
+var ZObj = document.getElementById('Zpos');
+	if (Button == 'ChangeSizeL')
+	{
+		if (SizeObj.value >moveStep)
+		{
+			SizeObj.value =  parseInt(SizeObj.value) -moveStep;
+		}
+	}
+	else 
+		if (Button == 'ChangeSizeR')
+		{
+			if (SizeObj.value < 500)
+			{
+				SizeObj.value =  parseInt(SizeObj.value) +moveStep;
+			}
+		}
+		
+	else 
+		if (Button == 'ChangeXL')
+		{
+			if (XObj.value > -600)
+			{
+				XObj.value = parseInt(XObj.value) -moveStep;
+			}
+		}
+		
+	else 
+		if (Button == 'ChangeXR')
+		{
+			if (XObj.value < 600)
+			{
+				XObj.value = parseInt(XObj.value) +moveStep;
+			}
+		}
+		
+	else 
+		if (Button == 'ChangeYL')
+		{
+			if (YObj.value > -600)
+			{
+				YObj.value = parseInt(YObj.value) -moveStep;
+			}
+		}
+		
+	else 
+		if (Button == 'ChangeYR')
+		{
+			if (YObj.value < 600)
+			{
+				YObj.value = parseInt(YObj.value) +moveStep;
+			}
+		}
+		
+	else 
+		if (Button == 'ChangeZL')
+		{
+			if (ZObj.value > -600)
+			{
+				ZObj.value = parseInt(ZObj.value) -moveStep;
+			}
+		}
+		
+	else 
+		if (Button == 'ChangeZR')
+		{
+			if (ZObj.value < 600)
+			{
+				ZObj.value = parseInt(ZObj.value) +moveStep;
+			}
+		}
+		/* If in change mode then rebuild selectd hedron */
+	if (inChangeMode == 1 ) 
+	{
+		rebuild_hedron();
+	}
+}
+
+
+</script>
+
+
+
+
+<!---   Paper backgroud at: /usr/share/apache2   /icons/rs_images/abgrd.gif ---->
+
+<body background="abgrd.gif" >
+
+<center>
+
+<h1>This is a simulator for human eye in 3D space.</h1>
+
+<div style="position: absolute; left0:; top:50;">
+ <canvas id="paintcanvas" width="888" height="500" style="border:1px solid" color="red"></canvas>
+
+</div>
+
+<div style="position: absolute; left: 20; top: 570;"> 
+<input type="button" onclick=" help ();" value="help">  
+</div>
+
+
+
+<div style="position: absolute; left: 80; top: 570;"> 
+ X: 
+     <input type="text" size="5" id="currX" value="0">  
+</div>
+<div style="position: absolute; left: 180; top: 570;"> 
+ Y: 
+     <input type="text" size="5" id="currY" value="0">  
+</div>
+<div style="position: absolute; left: 280; top: 570;"> 
+ Z: 
+     <input type="text" size="5" id="currZ" value="0">  
+</div>
+
+<div style="position: absolute; left: 380; top: 570;"> 
+ A: 
+     <input type="text" size="5" id="currA" value="0">  
+</div>
+<div style="position: absolute; left: 480; top: 570;"> 
+ B: 
+     <input type="text" size="5" id="currB" value="0">  
+</div>
+<div style="position: absolute; left: 580; top: 580;"> 
+ Focus: 
+     <input type="text" size="5" id="currFocus" value="1000">  
+</div>
+
+<div style="position: absolute; left: 640; top: 557;"> 
+<input type="button" onclick="ChangeFocus(&#39;up&#39;);" value="^">  
+</div>
+
+<div style="position: absolute; left: 640; top: 603;"> 
+<input type="button" onclick="ChangeFocus(&#39;down&#39;);" value="v">  
+</div>
+
+<div style="position: absolute; left: 950; top: 80;"> 
+Size:&nbsp;
+<input type="text" size="5" id="cSize" value="100">
+</div>
+
+<div style="position: absolute; left: 950; top: 105;"> 
+X:&nbsp; &nbsp; &nbsp;
+<input type="text" size="5" id="Xpos" value="100">
+</div>
+
+<div style="position: absolute; left: 950; top: 130;"> 
+Y:&nbsp; &nbsp; &nbsp;
+<input type="text" size="5" id="Ypos" value="100">
+</div>
+
+<div style="position: absolute; left: 950; top: 155;"> 
+Z:&nbsp; &nbsp; &nbsp;
+<input type="text" size="5" id="Zpos" value="100">
+</div>
+
+<div style="position: absolute; left: 950; top: 50;"> 
+<select id="hedronType" size="1" ('thickselect')"=""> 
+<option value="tetrahedron" selected="selected"> tetrahedron </option>
+<option value="cube"> cube</option>
+<option value="octahedron"> octahedron </option>  
+<option value="dodecahedron"> dodecahedron </option>
+<option value="icosahedron"> icosahedron </option>
+</select>
+</div>
+
+<div style="position: absolute; left: 950; top: 200;"> 
+<input type="button" onclick="build_hedron();" value="Build">  
+</div>
+
+
+
+
+
+
+<div id=colorSelectorDiv style="position: absolute; left: 950; top: 250;"> 
+<table > 
+<tr><td colspan = 3 align = center>Selected Color </td></tr> 
+<tr><td colspan = 3 bgcolor=black id=colorSelectorEv>&nbsp&nbsp&nbsp&nbsp&nbsp
+&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+</td></tr>
+<tr><td><input type=button   value="<" style="background-color:#ff0000"
+       id="sliderRL" onClick="sliderPosEv('sliderRL')"></td>
+	   
+	   <td><input type=button   value="00" style="background-color:#ff0000"
+       id="sliderRM" ></td>
+	   
+	   <td><input type=button   value=">" style="background-color:#ff0000"
+       id="sliderRR" onClick="sliderPosEv('sliderRR')"></td>
+	   
+</tr>
+
+<tr><td><input type=button   value="<" style="background-color:#00ff00"
+       id="sliderGL" onClick="sliderPosEv('sliderGL')"></td>
+	   
+	   <td><input type=button   value="00" style="background-color:#00ff00"
+       id="sliderGM" ></td>
+	   
+	   <td><input type=button   value=">" style="background-color:#00ff00"
+       id="sliderGR" onClick="sliderPosEv('sliderGR')"></td>
+	   
+</tr>
+
+<tr><td><input type=button   value="<" style="background-color:#0000ff"
+       id="sliderBL" onClick="sliderPosEv('sliderBL')"></td>
+	   
+	   <td><input type=button   value="00" style="background-color:#0000ff"
+       id="sliderBM" ></td>
+	   
+	   <td><input type=button   value=">" style="background-color:#0000ff"
+       id="sliderBR" onClick="sliderPosEv('sliderBR')"></td>
+	   
+</tr>
+</table> 
+
+ 
+</div>
+
+
+
+<div id=ObjectSelectorDiv style="position: absolute; left: 950; top: 400;">
+
+Object 
+<input type=text size = 2 value = 0 id = ObjectNumber>
+
+<input type=text size = 5 value = 0 id = selectedObjectType>
+
+<input type="button" onclick="ObjSelector('up')" value="^">  
+
+
+
+
+<input type="button" onclick="ObjSelector('down')" value="v">  
+
+</div>
+
+
+<div id=ObjectSelectorDiv style="position: absolute; left: 1100; top: 80;"> 
+<table > 
+<tr><td><input type=button   value="<" 
+       id="ChangeSizeL" onClick="ChangeLocation('ChangeSizeL')"></td>
+	   
+	   <td><input type=button   value=">" 
+       id="ChangeSizeR" onClick="ChangeLocation('ChangeSizeR')"></td>
+	   
+</tr>
+<tr><td><input type=button   value="." 
+       id="ChangeXL" onClick="ChangeLocation('ChangeXL')"></td>
+	   
+	   <td><input type=button   value="o" 
+       id="ChangeXR" onClick="ChangeLocation('ChangeXR')"></td>
+	   
+</tr>
+<tr><td><input type=button   value="<" 
+       id="ChangeYL" onClick="ChangeLocation('ChangeYL')"></td>
+	   
+	   <td><input type=button   value=">" 
+       id="ChangeYR" onClick="ChangeLocation('ChangeYR')"></td>
+	   
+</tr>
+<tr><td><input type=button   value="v" 
+       id="ChangeZL" onClick="ChangeLocation('ChangeZL')"></td>
+	   
+	   <td><input type=button   value="^" 
+       id="ChangeZR" onClick="ChangeLocation('ChangeZR')"></td>
+	   
+</tr>
+</table>
+
+</div>
+
+
+<div colspan = 3 align = center><input type=button style= "position: absolute; left: 1020; top: 200;"  value="Rebuild" 
+       id="RebuildObj" onClick="rebuild_hedron('RebuildObj')">
+
+</div>
+
+<div><input type=button style= "position: absolute; left: 1107; top: 200;"  value="Change" 
+       id="ChangeObj" onClick="Change_hedron('ChangeObj')">
+</div>
+
+
+
+</body>
+
+</html>
+
