@@ -1,0 +1,1403 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+
+<title>Evans paint tool</title>
+
+<script language=javascript>
+
+var debug        = 0;  /* Enable console.log prints  if set to 1.*/
+
+var c_max_x=500;
+var c_max_y=500;
+
+var cursorX;
+var cursorY;
+
+var thick = 1;
+
+var prevX = 0;
+var prevY = 0;
+var canvasAX      = 210;  /* X top cornet of canvas */ 
+var canvasAY      = 50;   /* Y top corner of canvas */
+var canvasAXMax   = 500; 
+var canvasAYMax   = 500;
+var canvasAXM     = canvasAX + canvasAXMax;
+var canvasAYM     = canvasAY + canvasAYMax;
+var drawEnabled   = 0;
+
+var lineColors    = [];   /* Create array */
+lineColors[0] = "red";
+lineColors[1] = "green";
+lineColors[2] = "blue";
+lineColors[3] = "yellow";
+lineColors[4] = "magenta";
+lineColors[5] = "pink";
+
+var selectedColorR = 0;
+var selectedColorG = 0;
+var selectedColorB = 0;
+
+var canvasBackgroundColor  = "ffffff";
+var canvasBackgroundColorR = 255;
+var canvasBackgroundColorG = 255;
+var canvasBackgroundColorB = 255;
+var canvasBackgroundFilled = 0; 
+var canvas;
+var startDraw = 0;      /* Start drawing */
+
+var imageTransparency = 255;
+var selectedTool  = "none"; /* contains selected tool name */
+var objects = new Array();   /* Create array of empty objects */
+var objectIndex   = 0;
+var objectStarted = 0;
+var maxDotsForPencil = 512;
+var xpi = [];
+var ypi = [];
+
+xpi[0] = 1;
+ypi[0] = 0;
+xpi[1] = 1;
+ypi[1] = -1;
+xpi[2] = 0;
+ypi[2] = -1;
+xpi[3] = -1;
+ypi[3] = -1;
+xpi[4] = -1;
+ypi[4] = 0;
+xpi[5] = -1;
+ypi[5] = 1;
+xpi[6] = 0;
+ypi[6] = 1;
+xpi[7] = 1;
+ypi[7] = 1;
+
+
+function getPixelColor (image, x, y)
+{
+  var color;
+  var index = (y * canvasAXMax + x ) * 4;  /* Point to pixel */ 
+  color = image.data [index + 0] + 
+          image.data [index + 1] * 256 + 
+          image.data [index + 2] * 256 * 256; 
+
+  return color;
+}
+
+function setPixelColor (image, x, y, color)
+{
+  var index = (y * canvasAXMax + x ) * 4;  /* Point to pixel */ 
+  /* Set red color */
+  image.data [index + 0]  = color & 0xff;  
+  image.data [index + 1]  = (color & 0xff00)/256;
+  image.data [index + 2]  = (color & 0xff0000) / (65536) ; /* 256* 256 = 65536 */
+  image.data [index + 3]  = 255; 
+
+  return 0;
+}
+
+
+function findNextPixel (image, x, y, coord, bgcolor, fillColor)
+{
+    var x1; 
+    var y1;
+    var found = 0;
+    for (var i = 0; i < 8; i++)
+       {
+           x1 = x + xpi [i];
+           y1 = y + ypi [i];
+           color = getPixelColor (image, x1, y1);
+           if (color == fillColor)
+           {
+               continue;
+           }
+           if (color != bgcolor)
+             {
+
+                 if (i == 0)
+                 {
+                     break; /* switch direction*/
+                 }
+                 coord['x'] = x + xpi [i-1];
+                 coord['y'] = y + ypi [i-1];
+                 found = 1;
+                 break;
+             }
+           
+           /*console.log(" i= " + i + " x1= " + x1 + " y1= " + y1 + " color= " + color);*/
+       }
+       if (found == 0)
+        {
+            for (var i = 7; i > 1; i--)
+            {
+                  x1 = x + xpi [i];
+                  y1 = y + ypi [i];
+                  color = getPixelColor (image, x1, y1);
+                  if (color == bgcolor || color == fillColor)
+                  {
+
+                       coord['x'] = x + xpi [i];
+                       coord['y'] = y + ypi [i];
+                       found = 1;
+                       break;                 
+                  }
+          
+            }
+        }
+   return found;
+
+}    
+
+/* Start draw function update */
+setInterval("updateCursor()", 50);
+
+
+document.onmousemove = function(e)
+{
+    cursorX = e.pageX;
+    cursorY = e.pageY;
+}
+
+/* Get coordinates for iPhone touchscreen */
+document.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    var touch = e.touches[0];
+
+    cursorX = touch.pageX;
+    cursorY = touch.pageY;
+
+
+}, false);
+
+function draw_circle(imgData,xc,yc,radius,colorR,colorG,colorB)
+{
+
+  /*console.log ("x=" + xc+ " y=" + yc+ " radius=" +radius);*/
+  for ( var angle = 0.0; angle < 360.0; angle += 0.1) 
+      {
+        /* Calculate x and y on the circle  */
+        var rad = angle * (3.14159265/180);              
+
+        sina = Math.sin(rad);              
+        cosa = Math.cos(rad);
+        
+        x = Math.floor(xc + radius * cosa);
+        y = Math.floor(yc + radius * sina);
+        var index = (yc*2*y + x) * 4;
+/*
+        console.log ( x + "x" + y + " " + index + " angle = " + 
+                    angle + " sin, cos = " + sina + "," + cosa );
+*/
+        /* Put pixels on the x,y */
+        imgData.data [ index + 0 ] = colorR;
+        imgData.data [ index + 1 ] = colorG;
+        imgData.data [ index + 2 ] = colorB;
+        imgData.data [ index + 3 ] = 255;
+
+      }
+
+} 
+     
+function Draw_Line(imageData1,
+				x,         /*start of the line x*/
+				y,         /*start of the line y*/
+				xe,		   /*end of the line x*/
+				ye,		   /*end of the line y*/
+				thick,
+				cr,
+				cg,
+				cb)
+{
+    /*                  
+    console.log ( "x=" + x + " y=" + y + " xe=" + xe + " ye=" + ye + " thick =" + thick );
+    */
+    var k = 0;
+
+    if ( (xe-x) != 0 ) 
+        k = (ye-y)/(xe-x);
+    var yp = 0;
+    var xs; 
+    var xl;
+    if ( xe >= x ) 
+    {
+       xs  = x; xl = xe;
+       if ( xe == x ) xl = xe + 1;
+    }
+    else
+    {
+       xs  = xe; xl = x;
+    }
+    for(var xp = xs; xp < xl; xp++)
+    {
+        yp = ye - Math.floor(((xe - xp))* (k));;
+
+        /*
+            console.log ( "xp=" + xp + " yp=" + yp + " k=" +k );
+        */        
+        /* Calculate starting X point in the image array */
+        var j = (yp * canvasAXMax  + xp) *4;
+
+        /* Build thick line on X axis */
+        for ( var t = 0; t < thick && (xp + thick) < canvasAXMax ; t ++ ) 
+        {
+        /*every dot that is placed on x is also placed on y like a square*/
+           for (var ty = 0; ty < thick; ty ++)
+           { 
+            var l = j+(canvasAXMax)*4 * ty;
+              imageData1.data[ l + t*4 + 0 ] = cr;    /* red */
+              imageData1.data[ l + t*4 + 1 ] = cg;    /* Green */
+              imageData1.data[ l + t*4 + 2 ] = cb;     /* Blue */
+              imageData1.data[ l + t*4 + 3 ] = 255;    /* transparency */
+           }
+        }
+    }
+}
+
+
+
+function displayAll (objects)
+{
+   var canvas = document.getElementById('paintcanvas');
+   var ctx    = canvas.getContext('2d');
+   ctx.fillStyle = canvasBackgroundColor;
+   ctx.fillRect(0,0,canvasAXMax,canvasAYMax);
+
+   for (var i = 0 ; i < objects.length ; i++ ) 
+   {
+     /*
+     console.log("Displaying "+ i + " Of total " + objects.length + 
+                 " Type " + objects[i]['type']);
+     */
+     switch (objects[i]['type']  ) 
+     {
+
+
+      case "square":
+      {
+
+      /* Create rectangle with selected color */
+
+      if ( objects[i]['xe'] <= 0 || objects[i]['ye'] <= 0 ) 
+      {
+         /* Negavive values discard */
+         break;
+      }                                                      
+      /* Create new image */     
+      /*console.log ("x= " + objects[i]['x'] + " xe= " + objects[i]['xe']+
+                  " y= " + objects[i]['y'] + " ye= " + objects[i]['ye']);
+      */ 
+                                    
+      var imageData1 = ctx.getImageData(
+                          objects[i]['x'],  objects[i]['y'],
+                          objects[i]['xe'],  objects[i]['ye']);
+
+        
+      /*                                                 
+      console.log ("Square: "+ i + " Of total " + objects.length  + 
+                   "Colors " + objects[i]['colorR'] + "." + 
+                               objects[i]['colorG'] + "." + 
+                              objects[i]['colorB']);
+      */
+      for ( var j = 0; j <  imageData1.data.length ; j += 4 ) 
+      {
+          /* Create pixels */  
+          imageData1.data[ j + 0 ] = objects[i]['colorR'];    /* red */
+          imageData1.data[ j + 1 ] = objects[i]['colorG'];    /* Green */
+          imageData1.data[ j + 2 ] = objects[i]['colorB'];    /* Blue */
+          imageData1.data[ j + 3 ] = 255;    /* transparency */
+
+      }
+      var thisThick = objects [i]['thickness'];
+      
+      /*
+      console.log ("hole x= " + (objects[i]['x'] + thisThick) + 
+                  " hole y= " + (objects[i]['y'] + thisThick) +
+                  " hole xe= " + (objects[i]['xe'] - thisThick*2) + 
+                  " hole ye= " + (objects[i]['ye'] - thisThick*2)); 
+      */
+       if ( (objects[i]['xe']-thisThick*2) <= 0 || 
+            (objects[i]['ye']-thisThick*2) <= 0 ) 
+      {
+         /* Negavive values discard */
+         break;
+      }                                                      
+                             
+      var imageData2 = ctx.getImageData(
+                          objects[i]['x']+thisThick,  objects[i]['y']+thisThick,
+                          objects[i]['xe']-thisThick*2,  objects[i]['ye']-thisThick*2);
+  
+          
+      /* Display image */
+      ctx.putImageData (imageData1, objects[i]['x'], objects[i]['y']);
+      ctx.putImageData (imageData2, objects[i]['x']+thisThick,
+        objects[i]['y']+thisThick);
+      break;            
+    }
+
+
+    case "circle":
+    {
+        /*console.log ("Display circle");*/
+      if ( objects [i]['xe'] > 0 && objects[i]['ye'] > 0 ) 
+      { 
+          /* Get undelying image */
+          var imageData3 = ctx.getImageData(
+                        objects[i]['x'] - objects[i]['xe'], 
+                        objects[i]['y'] - objects[i]['ye'], 
+                        objects[i]['xe']*2, 
+                        objects[i]['ye']*2);
+
+          var thisThick = objects [i]['thickness'];
+         for(var radius=objects[i]['radius'];
+            thisThick >0;
+            thisThick--, radius--)
+            {
+
+              draw_circle(imageData3,
+                      objects[i]['xe'],
+                      objects[i]['ye'],
+                      radius,objects[i]['colorR'],
+                      objects[i]['colorG'],objects[i]['colorB']);
+              ctx.putImageData (imageData3, 
+                           (objects[i]['x']-objects[i]['xe']),
+                           (objects[i]['y']-objects[i]['ye']));
+            }
+       }
+
+      break;
+    }
+    
+    case "pencil":
+    {  
+        var imageData1 = ctx.getImageData(0,0,canvasAXMax,canvasAYMax);
+                          
+       
+        var npi = objects[i]['npi'];
+        for (var k = 0; k < npi; k ++)
+        {
+          /*console.log ('npi = '+ k + ' x.y ' + 
+                        objects[i]['xe'][k]+ ' ' +
+                        objects[i]['ye'][k]) ;*/
+         var buildDots=0;
+         var startx = 0;
+         var starty = 0;
+         if (buildDots == 1)
+         {
+	        var j = (objects[i]['ye'][k] * canvasAXMax  +objects[i]['xe'][k]) *4;
+            imageData1.data[ j + 0 ] = objects[i]['colorR'];    /* red */
+            imageData1.data[ j + 1 ] = objects[i]['colorG'];    /* Green */
+            imageData1.data[ j + 2 ] = objects[i]['colorB'];    /* Blue */
+            imageData1.data[ j + 3 ] = 255;    /* transparency */
+         }
+         else 
+         {
+           if ( k == 0 ) 
+           {
+               startx = objects[i]['x'];
+               starty = objects[i]['y'];                
+           }
+           else
+           {
+               startx = objects[i]['xe'][k-1];
+               starty = objects[i]['ye'][k-1];
+           }
+
+           Draw_Line(imageData1,
+                      startx,        /* start of the line x*/
+                      starty,        /* start of the line y*/
+                      objects[i]['xe'][k],    /*end of the line x*/
+                      objects[i]['ye'][k],    /*end of the line y*/
+                      objects[i]['thickness'],
+                      objects[i]['colorR'],
+                      objects[i]['colorG'],
+                      objects[i]['colorB']);
+          }
+        }
+       ctx.putImageData (imageData1, 0,0);
+      break;
+    }
+
+    case "line":
+    {
+       var imageData1 = ctx.getImageData(0,0,canvasAXMax,canvasAYMax);
+
+
+       Draw_Line(imageData1,
+                      objects[i]['x'],        /* start of the line x*/
+                      objects[i]['y'],        /* start of the line y*/
+                      objects[i]['xe'],    /*end of the line x*/
+                      objects[i]['ye'],    /*end of the line y*/
+                      objects[i]['thickness'],
+                      objects[i]['colorR'],
+                      objects[i]['colorG'],
+                      objects[i]['colorB']);
+
+
+
+
+
+      ctx.putImageData (imageData1, 0,0);
+      break;
+    }
+
+    case "fill":
+    {
+/*
+      console.log ("DrawAll: Filling image at X.Y " + objects[i]['x'] + "." + objects[i]['y']);
+*/
+      var imageData4 = ctx.getImageData(0,0,canvasAXMax,canvasAYMax);
+    
+      var col;
+      var x = objects[i]['x'];
+      var y = objects[i]['y'];
+      var bgcolor = getPixelColor (imageData4, x, y);
+      var fillColor = (objects[i]['colorR']+
+                      objects[i]['colorG']*256 +
+                      objects[i]['colorB']* 256 * 256);
+
+
+      for (ymax = y; ymax < canvasAYMax; ymax++)
+      {
+       col = getPixelColor (imageData4, x, ymax);
+
+       if (col != bgcolor)
+       {
+           break;
+       }
+      }
+      /*console.log ( "bg color =" + bgcolor);*/
+      /* console.log ( "Found point at the bottom: ymax= " + ymax + " x= " + x); */
+
+      setPixelColor (imageData4, x, ymax, 0);
+      var yp = ymax-1;
+      var xp = x;
+      var coord = Array();
+      var xb; 
+      var yb;
+      var ypStart = yp;
+      var xpStart = xp;
+      var j;
+      for (j = 0; j < 2000; j++)
+      {
+          findNextPixel (imageData4, xp, yp, coord, bgcolor, fillColor);
+    
+          /*  console.log ("xp= " + xp + " yp= " + yp + " coord ['x']= " 
+                       + coord ['x'] + " coord ['y']= " + coord ['y']);  */
+
+          xp = coord['x'];
+          yp = coord['y'];
+
+          for(var xb = xp; xb < canvasAXMax; xb++)
+          {
+              col = getPixelColor (imageData4, xb, yp);
+              if (col != bgcolor )
+              {
+                 break;
+              }
+              else
+              {
+                 setPixelColor (imageData4, xb, yp, fillColor);
+              }
+          }
+          if (xp == xpStart && yp == ypStart)
+          {
+             console.log ("found starting point" + " xp= " + xp + " yp= " + yp);
+             break;
+          }
+      }
+      console.log ("total pixels processed " + j);
+
+      ctx.putImageData (imageData4, 0,0);
+      break;
+    } /* End of fill case */ 
+   }  /* End of switch */
+  } /* End of for all objects */
+}
+
+function updateCursor()
+{
+  var canvas = document.getElementById('paintcanvas');
+  var ctx    = canvas.getContext('2d');
+
+  var newX = cursorX-canvasAX;
+  var newY = cursorY-canvasAY;
+
+  var Xdisplay = document.getElementById('Xdisplay');
+  var Ydisplay = document.getElementById('Ydisplay');
+  var changed = 0;
+ 
+  /* Show coordinates of the mouse inside canvas */
+  /* Show only values inside canavs */ 
+   if ( newX >= 0 && newX <= (canvasAXMax))  
+   {
+
+      if ( newY >= 0 && newY <= canvasAYMax) 
+      {
+         Xdisplay.value = newX;
+         Ydisplay.value = newY;
+      }
+      else
+      {
+          return;  /* Out of Y zone */
+      }
+   }
+   else
+   {
+     return;  /* Out of X zone */                           
+   }
+
+/*
+  console.log ("Update Cursor " + cursorX + "." + cursorY);
+*/
+
+                          
+  if ( startDraw ==  1) 
+  {
+    switch (selectedTool ) 
+    {
+      case "square":
+                          
+        if ( objectStarted == 0 ) 
+        {
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+
+          objects[objectIndex] = new Array();
+          /* Start new object. Save initial coordinates */
+          objects[objectIndex]['type'] = 'square';
+          objects[objectIndex]['x'] = newX;  /* Start X coordinate of teh image */
+          objects[objectIndex]['y'] = newY;  /* Start Y coordinate of the image */
+          objects[objectIndex]['xe'] = 0;
+          objects[objectIndex]['ye'] = 0;
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+          objects[objectIndex]['thickness'] = thick;
+
+          objectStarted = 1;
+
+        }
+        else
+        {
+          /* We are in the middle of object definition */
+          /* Use current coordinates as low/right corner */
+          if ( (newX - objects[objectIndex]['x']) != objects[objectIndex]['xe'] ||
+               (newY - objects[objectIndex]['y']) != objects[objectIndex]['ye'] ) 
+          {
+            /* Update coordinates and set changed flag  */ 
+
+            if ( (newX - objects[objectIndex]['x']) > 0 )                 
+                objects[objectIndex]['xe'] = newX - objects[objectIndex]['x'];
+
+            if ( (newY - objects[objectIndex]['y']) > 0 )                 
+                objects[objectIndex]['ye'] = newY - objects[objectIndex]['y'];
+
+            /*console.log ("Drawing square no: " + 
+                          objects[objectIndex]['x'] + "." + 
+                          objects[objectIndex]['y'] + "/" +
+                          objects[objectIndex]['xe']  + "." + 
+                          objects[objectIndex]['ye'] );*/
+            changed = 1;
+          }
+        }
+
+      break;
+
+      
+      case "circle":
+                          
+        if ( objectStarted == 0 ) 
+        {
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+
+          objects[objectIndex] = new Array();
+          /* Start new object. Save initial coordinates */
+          objects[objectIndex]['type'] = 'circle';
+          objects[objectIndex]['x'] = newX;/* Start centerX coordinate of teh image */
+          objects[objectIndex]['y'] = newY;/* Start centerY coordinate of the image */
+          objects[objectIndex]['radius'] = 0;
+          objects[objectIndex]['ye']= 0;
+          objects[objectIndex]['xe']= 0;
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+          objects[objectIndex]['thickness'] = thick;
+
+          objectStarted = 1;
+
+        }
+        else
+        {
+          /* We are in the middle of object definition */
+          /* Use current coordinates as low/right corner */
+          if ( (newX - objects[objectIndex]['x']) != objects[objectIndex]['xe'] ||
+               (newY - objects[objectIndex]['y']) != objects[objectIndex]['ye'] ) 
+          {
+            /* Update coordinates and set changed flag  */ 
+            /* We need to have square here */
+            if ( (newX - objects[objectIndex]['x']) > 0 )
+            {                 
+                objects[objectIndex]['xe'] = newX - objects[objectIndex]['x'];
+                objects[objectIndex]['ye'] = newX - objects[objectIndex]['x'];
+            }
+            objects[objectIndex]['radius']= objects[objectIndex]['xe']; 
+           /* console.log ("Drawing circle: radius: " +  
+				   objects[objectIndex]['radius']+" coord "+
+
+                          objects[objectIndex]['x'] + "." + 
+                          objects[objectIndex]['y'] + "/" +
+                          objects[objectIndex]['xe']  + "." + 
+                          objects[objectIndex]['ye'] );*/
+            changed = 1;
+          }
+        }
+
+      break;
+
+      case "pencil":
+        if ( objectStarted == 0 ) 
+        {
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+
+          objects[objectIndex] = new Array();
+          /* Start new object. Save initial coordinates */
+          objects[objectIndex]['type'] = 'pencil';
+          objects[objectIndex]['x'] = newX;/* Start X coordinate of the curve */
+          objects[objectIndex]['y'] = newY;/* Start Y coordinate of the curve */
+          objects[objectIndex]['ye']= new Array();
+          objects[objectIndex]['xe']= new Array();
+          objects[objectIndex]['xprev'] = newX; /* Prev X coordinate of the curve */
+          objects[objectIndex]['yprev'] = newY; /* Prev Y coordinate of the curve */
+          objects[objectIndex]['npi']= 0;
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+          objects[objectIndex]['thickness'] = thick;
+
+          objectStarted = 1;
+
+        }
+        else
+        {
+          var npi = objects[objectIndex]['npi'];
+
+          /* Check if coordinates actually changhed */                       
+          if ( (newX != objects[objectIndex]['xprev']) ||
+               (newY != objects[objectIndex]['yprev']) ) 
+          {
+              /* Do not take negative values */                   
+              /* We are in the middle of object definition */
+              /* Use current coordinates as coordinates of new point */
+              /* Check that number of dots is not too large */
+              if ( npi < maxDotsForPencil ) 
+              {
+                objects[objectIndex]['npi'] = npi + 1;
+                objects[objectIndex]['xe'][npi]= newX;
+                objects[objectIndex]['ye'][npi]= newY;
+                objects[objectIndex]['xprev'] = newX;
+                objects[objectIndex]['yprev'] = newY;
+                changed = 1;
+                /* Display current number of dots */                
+                var objIdx = document.getElementById('numberOfDots');
+                objIdx.value = npi;
+              }
+          }
+        }
+
+      break;
+
+    case "line":
+      {
+        if ( objectStarted == 0 ) 
+        {
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+
+          objects[objectIndex] = new Array();
+          /* Start new object. Save initial coordinates */
+          objects[objectIndex]['type'] = 'line';
+          objects[objectIndex]['x'] = newX;  /* Start X coordinate of teh image */
+          objects[objectIndex]['y'] = newY;  /* Start Y coordinate of the image */
+          objects[objectIndex]['xe'] = 0;
+          objects[objectIndex]['ye'] = 0;
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+          objects[objectIndex]['thickness'] = thick;
+
+          objectStarted = 1;
+
+        }
+        else
+        {
+          /* We are in the middle of object definition */
+          /* Use current coordinates as low/right corner */
+          if ( (newX - objects[objectIndex]['x']) != objects[objectIndex]['xe'] ||
+               (newY - objects[objectIndex]['y']) != objects[objectIndex]['ye'] ) 
+          {
+            /* Update coordinates and set changed flag  */ 
+
+           
+                objects[objectIndex]['xe'] = newX;
+
+           
+                objects[objectIndex]['ye'] = newY;
+
+            /*console.log ("Drawing line: " + 
+                          objects[objectIndex]['x'] + "." + 
+                          objects[objectIndex]['y'] + "/" +
+                          objects[objectIndex]['xe']  + "." + 
+                          objects[objectIndex]['ye'] );*/
+            changed = 1;
+          }
+        }
+      }
+    break; /*end of line case*/
+
+    case "fill":
+      {
+
+        if ( objectStarted == 0 )
+        {
+
+          /* Display current object index */                
+          var objIdx = document.getElementById('objectIndex');
+          objIdx.value = objectIndex;
+          objects[objectIndex] = new Array();
+          objects[objectIndex]['type'] = 'fill';
+          objects[objectIndex]['x'] = newX;  /* Start X coordinate of teh image */
+          objects[objectIndex]['y'] = newY;  /* Start Y coordinate of the image */
+          objects[objectIndex]['colorR'] = selectedColorR; 
+          objects[objectIndex]['colorG'] = selectedColorG; 
+          objects[objectIndex]['colorB'] = selectedColorB; 
+  
+          changed = 1;
+          console.log ("Fill Object creation finished: " + objectIndex);
+          startDraw = 0;               
+          objectStarted = 0;
+          selectedColorR = 0;
+          selectedColorG = 0;
+          selectedColorB = 0;
+          selectedTool = "none";
+          var ToolId = document.getElementById ('selectedToolId');
+          ToolId.value = "none";
+          var colorBG = document.getElementById('selectedColorBG'); 
+          colorBG.style.backgroundColor = "#"+ toHex(selectedColorR) + 
+          toHex(selectedColorG) +  toHex(selectedColorB); 
+          objectIndex ++;  /* Move to the next object */
+        } 
+        else
+        {
+          console.log("end fill object");
+          startDraw = 0;               
+          break;  /* Do nothing */               
+        }
+      }
+      break; /*end of fill case*/
+
+    } /* End of switch */ 
+  }
+  else  /* Object not started */
+  {
+    if (objectStarted == 1 ) 
+    {
+      /* Object finished. */
+       console.log ("Object creation finished: " + objectIndex);
+
+       objectStarted = 0;
+       selectedColorR = 0;
+       selectedColorG = 0;
+       selectedColorB = 0;
+       selectedTool = "none";
+       var ToolId = document.getElementById ('selectedToolId');
+       ToolId.value = "none";
+       var colorBG = document.getElementById('selectedColorBG'); 
+       colorBG.style.backgroundColor = "#"+ toHex(selectedColorR) + 
+       toHex(selectedColorG) +  toHex(selectedColorB); 
+
+      objectIndex ++;  /* Move to the next object */
+    }
+  }
+
+  /* Display all objects */
+  if ( changed == 1 ) 
+  {
+    displayAll(objects);
+  }
+}
+
+document.onkeydown= function(event) 
+{
+
+    var keyCode = event.keyCode;
+
+    if ( canvas == null ) 
+    {
+      canvas=document.getElementById('paintcanvas');
+      console.log ("Paint canvas initialized");
+      var ctx    = canvas.getContext('2d');
+      if ( canvasBackgroundFilled == 0 ) 
+      {
+        /* Fill background image once */
+           ctx.fillStyle = canvasBackgroundColor;
+/*
+           ctx.fillRect(0,0,canvasAXMax,canvasAYMax);
+*/
+           canvasBackgroundFilled = 1; 
+      }
+    }
+
+    if ( keyCode == 83 ) /* S letter clicked - start draw */
+    {
+
+       startDraw = 1;
+    }
+    if ( keyCode == 69 ) /* e letter clicked - stop draw */
+    {
+
+       startDraw = 0;
+    }
+    var stst = document.getElementById('startStop');
+    stst.value = startDraw == 1 ? "Drawing" : "Stopped";
+
+    return;
+
+}
+
+document.onkeyup= function(event) 
+{
+    window.onkeypress = void (0);
+}
+
+
+
+
+function selectTool(tool) 
+{
+
+  switch (tool)
+  {
+    case "size tiny":
+    thick=1;
+    break;
+
+    case "size small":
+    thick=2;
+    break;
+
+    case "size medium":
+    thick=4;
+    break;
+
+    case "size large":
+    thick=8;
+    break;
+
+    case "thickselect": 
+    var thickl = document.getElementById('thickselect'); 
+    thick=parseInt(thickl.value);
+    break;
+ 
+
+    default:
+    selectedTool = tool;
+    
+    var ToolId = document.getElementById ('selectedToolId');
+    ToolId.value = tool;
+    if (selectedTool == "eraser")
+    {
+       selectedTool = "pencil";
+       
+       selectedColorR = canvasBackgroundColorR;
+       selectedColorG = canvasBackgroundColorG;
+       selectedColorB = canvasBackgroundColorB;
+    }
+    break;
+  }              
+  console.log ("Select tool " + selectedTool + ' thicknes : '+thick);             
+  return (false);
+}
+
+function toHex(n) {
+ n = parseInt(n,10);
+ if (isNaN(n)) return "00";
+ n = Math.max(0,Math.min(n,255));
+ return "0123456789ABCDEF".charAt((n-n%16)/16)
+      + "0123456789ABCDEF".charAt(n%16);
+}
+
+function ColorSelect(r,g,b) 
+{
+
+  selectedColorR = r;
+  selectedColorG = g;
+  selectedColorB = b;
+
+  var colorBG = document.getElementById('selectedColorBG'); 
+  colorBG.style.backgroundColor = "#"+ toHex(r) +  toHex(g) +  toHex(b);   
+  return (false);
+}
+
+function startStop ()
+{
+ var stst = document.getElementById('startStop');
+
+
+  if ( startDraw == 0 ) 
+  {
+    startDraw = 1;
+    stst.value = "Stop";
+  }
+  else
+  {
+    startDraw = 0;
+    stst.value = "Start";
+  }
+ return false;
+}
+
+function savePaint ( )
+{
+  var storage = document.getElementById('storageName');
+
+ if (storage != null ) 
+ {
+   if ( storage.value != "" ) 
+   {
+	/* check if storage name is defined*/
+      var name = storage.value + "_"; 
+
+	/* save number of objects */
+	localStorage.setItem (name + "total", objects.length);
+   
+	/* go through all objects */
+	for(var i = 0 ; i < objects.length; i++)
+      {
+        switch ( objects [i]['type'])
+        {
+          case "square":
+          {
+            localStorage.setItem (name + "type_" + i,objects [i]['type'] );
+            localStorage.setItem (name + "colorR_" + i ,objects [i] ['colorR']);
+            localStorage.setItem (name + "colorG_" + i ,objects [i] ['colorG']);
+            localStorage.setItem (name + "colorB_" + i ,objects [i] ['colorB']);
+            localStorage.setItem (name + "xe_" + i ,objects [i]['xe']);
+            localStorage.setItem (name + "ye_" + i ,objects [i]['ye']);
+            localStorage.setItem (name + "x_" + i ,objects [i]['x']);
+            localStorage.setItem (name + "y_" + i ,objects [i]['y']);
+            localStorage.setItem (name + "thickness_" + i ,objects [i]['thickness']);
+          }
+          case "circle":
+          
+          {
+            localStorage.setItem (name + "type_" + i,objects [i]['type'] );
+            localStorage.setItem (name + "colorR_" + i ,objects [i] ['colorR']);
+            localStorage.setItem (name + "colorG_" + i ,objects [i] ['colorG']);
+            localStorage.setItem (name + "colorB_" + i ,objects [i] ['colorB']);
+            localStorage.setItem (name + "xe_" + i ,objects [i]['xe']);
+            localStorage.setItem (name + "ye_" + i ,objects [i]['ye']);
+            localStorage.setItem (name + "x_" + i ,objects [i]['x']);
+            localStorage.setItem (name + "y_" + i ,objects [i]['y']);
+            localStorage.setItem (name + "thickness_" + i ,objects [i]['thickness']);
+            localStorage.setItem (name + "radius_"+ i, objects [i]['radius'] );
+          }
+
+          case "pencil":
+          {
+            localStorage.setItem (name + "type_" +   i ,objects [i]['type'] );
+            localStorage.setItem (name + "colorR_" + i ,objects [i] ['colorR']);
+            localStorage.setItem (name + "colorG_" + i ,objects [i] ['colorG']);
+            localStorage.setItem (name + "colorB_" + i ,objects [i] ['colorB']);
+            localStorage.setItem (name + "x_"  +     i ,objects [i]['x']);
+            localStorage.setItem (name + "y_"  +     i ,objects [i]['y']);
+            localStorage.setItem (name + "npi_"  +   i ,objects [i]['npi']);
+            localStorage.setItem (name + "thickness_" + i ,objects [i]['thickness']);
+
+            localStorage.setItem (name + "xe_" +     i ,JSON.stringify(objects[i]['xe']));
+            localStorage.setItem (name + "ye_" +     i ,JSON.stringify(objects[i]['ye']));
+                        
+          }
+            
+          case "line":
+          {
+            localStorage.setItem (name + "type_" + i,objects [i]['type'] );
+            localStorage.setItem (name + "colorR_" + i ,objects [i] ['colorR']);
+            localStorage.setItem (name + "colorG_" + i ,objects [i] ['colorG']);
+            localStorage.setItem (name + "colorB_" + i ,objects [i] ['colorB']);
+            localStorage.setItem (name + "xe_" + i ,objects [i]['xe']);
+            localStorage.setItem (name + "ye_" + i ,objects [i]['ye']);
+            localStorage.setItem (name + "x_" + i ,objects [i]['x']);
+            localStorage.setItem (name + "y_" + i ,objects [i]['y']);
+            localStorage.setItem (name + "thickness_" + i ,objects [i]['thickness']);
+          }
+         
+          case "fill" :
+          {     
+            localStorage.setItem(name + "type_"    + i, objects[i]['type']);
+            localStorage.setItem(name + "colorsR_" + i, objects[i]['colorR']);    
+            localStorage.setItem(name + "colorsG_" + i, objects[i]['colorG']);    
+            localStorage.setItem(name + "colorsB_" + i, objects[i]['colorB']);    
+            localStorage.setItem(name + "x_"  + i, objects[i]['x']);
+            localStorage.setItem(name + "y_"  + i, objects[i]['y']);            
+          }
+
+        }
+
+      }
+        console.log("All objects saved to "  + name);
+   }/* check if value is empty */
+   else
+   {
+       alert ("Please specify archive name");                 
+   }
+ }/* check is storage name was found */             
+} 
+
+
+
+function restorePaint ( )
+{
+ var storage = document.getElementById('storageName');
+
+ if (storage != null ) 
+ {
+   if ( storage.value != "" ) 
+   {
+
+   /* check if storage name is defined*/
+   var name = storage.value + "_";
+
+
+   /*retreave total number of objects*/
+   var tott = localStorage.getItem (name + "total");                      
+
+   if ( tott == null ) 
+   {
+     alert ("Storage " + storage.value + " is empty! Check storage name"); 
+     return;                    
+   }
+
+  var totObj = parseInt(localStorage.getItem (name + "total"));
+  var type;
+
+  console.log ("total= " + totObj + " restoring from "  + name);
+
+
+  /* go through all objects */
+  for(var i = 0 ; i < totObj; i++)
+  {
+    type = localStorage.getItem (name + "type_"+i);
+    console.log("type= " + type );
+    switch (type)
+    {
+    case "square":
+      {
+         objects[i]= new Array();
+         objects [i] ['type']= type;
+            objects[i]['colorR']= parseInt(localStorage.getItem (name + "colorR_" + i));
+            objects[i]['colorG']= parseInt(localStorage.getItem (name + "colorG_" + i));
+            objects[i]['colorB']= parseInt(localStorage.getItem (name + "colorB_" + i));
+            objects[i]['xe']    = parseInt(localStorage.getItem (name + "xe_"     + i));
+            objects[i]['ye']    = parseInt(localStorage.getItem (name + "ye_"     + i));
+            objects[i]['x']     = parseInt(localStorage.getItem (name + "x_"      + i));
+            objects[i]['y']     = parseInt(localStorage.getItem (name + "y_"      + i));
+            objects[i]['thickness']= parseInt(localStorage.getItem (name + "thickness_" + i));
+            objectIndex ++;
+            break;
+
+      }
+
+     case "circle":
+      {
+         objects[i]= new Array();
+         objects [i] ['type']= type;
+            objects[i]['colorR']= parseInt(localStorage.getItem (name + "colorR_" + i));
+            objects[i]['colorG']= parseInt(localStorage.getItem (name + "colorG_" + i));
+            objects[i]['colorB']= parseInt(localStorage.getItem (name + "colorB_" + i));
+            objects[i]['radius']= parseInt(localStorage.getItem (name + "radius_" + i));
+            objects[i]['xe']    = parseInt(localStorage.getItem (name + "xe_"     + i));
+            objects[i]['ye']    = parseInt(localStorage.getItem (name + "ye_"     + i));
+            objects[i]['x']     = parseInt(localStorage.getItem (name + "x_"      + i));
+            objects[i]['y']     = parseInt(localStorage.getItem (name + "y_"      + i));
+            objects[i]['thickness']= parseInt(localStorage.getItem (name + "thickness_" + i));
+            objectIndex ++;
+            break;
+      }
+
+     
+     case "pencil":
+      {
+         objects[i]= new Array();
+
+         objects[i]['type'] = type;
+
+         objects[i]['colorR']= parseInt(localStorage.getItem (name + "colorR_" + i));
+         objects[i]['colorG']= parseInt(localStorage.getItem (name + "colorG_" + i));
+         objects[i]['colorB']= parseInt(localStorage.getItem (name + "colorB_" + i));
+         objects[i]['thickness'] = parseInt ( localStorage.getItem (name + "thickness_" + i));
+         objects[i]['x']         = parseInt ( localStorage.getItem (name + "x_"         + i));
+         objects[i]['y']         = parseInt ( localStorage.getItem (name + "y_"         + i));
+         objects[i]['npi']       = parseInt ( localStorage.getItem (name + "npi_"       + i));
+
+         var lx = "[" + localStorage.getItem(name + "xe_" + i) + "]";
+         var ly = "[" + localStorage.getItem(name + "ye_" + i) + "]";             
+
+         objects[i]['xe']        = new Array();             
+         objects[i]['xe']        = JSON.parse (lx);
+
+         objects[i]['ye']        = new Array();
+         objects[i]['ye']        = JSON.parse (ly);
+
+         objectIndex ++;
+         break;
+      }
+     
+    case "line":
+      {
+         objects[i]= new Array();
+         objects [i] ['type']= type;
+            objects[i]['colorR']= parseInt(localStorage.getItem (name + "colorR_" + i));
+            objects[i]['colorG']= parseInt(localStorage.getItem (name + "colorG_" + i));
+            objects[i]['colorB']= parseInt(localStorage.getItem (name + "colorB_" + i));
+            objects[i]['xe']    = parseInt(localStorage.getItem (name + "xe_"     + i));
+            objects[i]['ye']    = parseInt(localStorage.getItem (name + "ye_"     + i));
+            objects[i]['x']     = parseInt(localStorage.getItem (name + "x_"      + i));
+            objects[i]['y']     = parseInt(localStorage.getItem (name + "y_"      + i));
+            objects[i]['thickness']= parseInt(localStorage.getItem (name + "thickness_" + i));
+            objectIndex ++;
+            break;
+
+      }
+    case "fill" : 
+      {
+            objects[i] = new Array();
+            objects[i]['type']      = type;
+            objects[i]['colorR']    = parseInt( localStorage.getItem (name + "colorsR_" + i));
+            objects[i]['colorG']    = parseInt( localStorage.getItem (name + "colorsG_" + i));
+            objects[i]['colorB']    = parseInt( localStorage.getItem (name + "colorsB_" + i));
+            objects[i]['x']         = parseInt( localStorage.getItem (name + "x_"   + i));
+            objects[i]['y']         = parseInt( localStorage.getItem (name + "y_"   + i));
+            objectIndex ++;
+
+            break;
+      }
+
+    } /* end of swith*/
+  
+  }  /* end of for */
+  displayAll (objects);
+  }  /* check if value is empty */
+  else
+  {
+    alert ("Please specify storage name!");
+  }
+ }   /* check if storage name was found */  
+
+}
+
+
+</script>
+
+
+
+</head>
+
+<!-   Paper backgroud at: /usr/share/apache2   /icons/rs_images/abgrd.gif -->
+
+<body background=/icons/rs_images/abgrd.gif>
+<span id="dummy"></span>
+<center>
+
+
+
+
+
+<div style="position: absolute; left:50; top:50;" >
+<table id="paintTable"  width=150 height=500 style="border:1px solid" bgcolor="#cccccc"></canvas>
+<tr>
+    <td> 
+      <input type=image  src="/evan/images/select.jpg" width="40" height="40" 
+                name=pencil id=pencil onClick="selectTool('select');" />   
+   </td> 
+    <td>  
+      <input type=text size=5 id=selectedToolId value="none">
+
+   </td>
+
+</tr>
+<tr>
+    <td> 
+      <input type=image  src="/evan/images/square.svg" width="40" height="40" 
+                name=pencil id=pencil onClick="selectTool('square');" />  
+   </td> 
+    <td>     
+      <input type=image  src="/evan/images/circle.png" width="40" height="40" 
+                name=pencil id=pencil onClick="selectTool('circle');" />  
+
+    </td>
+</tr>
+<tr>
+    <td> 
+      <input type=image  src="/evan/images/pencil.jpg" width="40" height="40" 
+                name=pencil id=pencil onClick="selectTool('pencil');" />  
+   </td>
+ 
+    <td>
+      <input type=image  src="/evan/images/eraser.gif" width="40" height="40" 
+                name=pencil id=pencil onClick="selectTool('eraser');" />  
+    
+   </td>
+</tr>
+<tr>
+    <td> 
+      <input type=image  src="/evan/images/line.jpg" width="40" height="40" 
+                name=pencil id=pencil onClick="selectTool('line');" />  
+  
+    </td> 
+    <td> 
+      <input type=image  src="/evan/images/fill.png" width="40" height="40" 
+                name=pencil id=pencil onClick="selectTool('fill');" />  
+    
+    </td>
+</tr>
+<tr>
+    <td colspan=2 align=center>  Pen Size picker  </td>
+</tr>
+<tr>
+    
+    <td colspan=2 align=center> 
+      <input type=image  src="/evan/images/size_4.png" width="5" height="5" 
+                name=pencil id=pencil onClick="selectTool('size tiny');" />
+
+      <input type=image  src="/evan/images/size_3.png" width="10" height="10" 
+                name=pencil id=pencil onClick="selectTool('size small');" /> 
+
+   
+      
+
+      <input type=image  src="/evan/images/size_2.png" width="15" height="15" 
+                name=pencil id=pencil onClick="selectTool('size medium');" />
+
+      <input type=image  src="/evan/images/size_1.png" width="20" height="20" 
+                name=pencil id=pencil onClick="selectTool('size large');" /> 
+
+
+	<select id=thickselect size=1 onChange="selectTool('thickselect')"> 
+	<option value="1" selected="selected" > 1 </option>
+	<option value="10" > 10 </option>
+	<option value="12" > 12 </option>
+      <option value="14" > 14 </option>
+      <option value="16" > 16 </option>
+      <option value="20" > 20 </option>
+      <option value="30" > 30 </option>
+	<option value="40" > 40 </option>
+	</select>
+
+   </td> 
+     
+    
+   
+
+</tr>
+<tr>
+    <td colspan=2 align=center> Color Picker   </td> 
+</tr>
+<tr>
+
+    <td colspan=2 align=center >  
+	<table>
+	<tr>
+      <!---- http://html-color-codes.info/  -->
+	<td onClick="ColorSelect(0xff,0,0)"    bgcolor=#ff0000 width=10 height=30 >
+	<td onClick="ColorSelect(0,0,0)"      bgcolor=#000000 width=10 height=30 >
+
+	<td onClick="ColorSelect(0xff,0xff,0)"  bgcolor=#ffff00 width=10 height=30 >
+
+	<td onClick="ColorSelect(0,0xff,0)"  bgcolor=#00ff00 width=10 height=30 >
+	<td onClick="ColorSelect(0,0,0xff)"   bgcolor=#0000ff width=10 height=30 >
+	<td onClick="ColorSelect(0xff,0,0xff)" bgcolor=#ff00ff width=10 height=30 >
+	<td onClick="ColorSelect(0xA9,0x00,0xdb)" bgcolor=#A901DB width=10 height=30 >
+	<td onClick="ColorSelect(0xff,0xff,0xff)"  bgcolor=white width=10 height=30 >
+	<td onClick="ColorSelect(0x8a,0x29,0x08)"  bgcolor=brown width=10 height=30 >
+	<td onClick="ColorSelect(0xaa,0xaa,0xaa)"   bgcolor=#aaaaaa width=10 height=30 >
+     
+
+
+	</tr>
+    <tr>
+      <td colspan=5> Color: </td>
+      <td colspan=5 bgcolor=black id=selectedColorBG> </td>
+    </tr> 
+
+      </table>
+    </td>
+</tr>
+<tr>
+    <td>  9  </td> <td>     </td>
+</tr>
+</table>
+</div>
+
+
+<div style="position: absolute; left:210; top:50;" >
+ <canvas id="paintcanvas" width=500 height=500 style="border:1px solid" color=red 
+         onClick="startStop()" ></canvas>
+
+</div>
+
+<div style="position: absolute; left: 50; top: 600;"> 
+<input type=button onClick="help ()" value="help">  
+</div>
+
+<div style="position: absolute; left: 150; top: 600;"> 
+ X: 
+<input type=text size=5 id=Xdisplay value=0>  
+</div>
+
+<div style="position: absolute; left: 250; top: 600;"> 
+Y:
+<input type=text size=5 id=Ydisplay value=0>  
+</div>
+
+<div style="position: absolute; left: 350; top: 600;"> 
+Object index:
+<input type=text size=5 id=objectIndex value=0>  
+</div>
+
+<div style="position: absolute; left: 530; top: 600;"> 
+Dots:
+<input type=text size=5 id=numberOfDots value=0>  
+</div>
+
+<div style="position: absolute; left: 650; top: 600;"> 
+<input type=button  value="Stopped" id=startStop>  
+</div>
+
+<div style="position: absolute; left: 750; top: 600;"> 
+<input type=button  value="Save" id=Save onclick = "savePaint ()">  
+</div>
+
+<div style="position: absolute; left: 850; top: 600;"> 
+<input type=button  value="Restore" id=Restore onclick = "restorePaint ()">  
+</div>
+
+<div style="position: absolute; left: 750; top: 650;"> 
+Store name: <input type=text size=5  value="" id="storageName">  
+</div>
+
+
+</body>
+
+</html>
+
+
+
+
